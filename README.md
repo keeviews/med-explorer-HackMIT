@@ -124,6 +124,19 @@ Set `OPENFDA_API_KEY` (free at open.fda.gov) if you hit rate limits.
 
 Not included yet: over-the-counter cough and cold products such as dextromethorphan and guaifenesin, because their FDA labels list no side effects to confirm. `scripts/ingest_stub.py` (a DrugCentral placeholder) is no longer used.
 
+## Can these be taken together? (interaction flags)
+
+Compare and "Check for overlap" now also flag pairs whose **FDA labels mention each other**, in red (strong warning) or amber (worth discussing). Each flag shows a plain-language explanation and the **exact sentence from the FDA label** with a link to the label on DailyMed, so nothing is a guess.
+
+How it works (no AI/LLM involved):
+
+1. `scripts/build_seed_from_openfda.py` reads each drug's label sections about combining medicines (boxed warning, contraindications, drug interactions, precautions, "ask a doctor or pharmacist").
+2. For every other drug in the app it looks for a sentence naming that drug (or its brand names), or its whole class ("NSAIDs", "anticoagulants", ...), and that says what happens (raises a risk, lowers absorption, ...). Sentences that only list drug names, or that say a combination had **no** effect, are skipped.
+3. The plain-language explanation is written by hand in `scripts/curated_drugs.py` (`INTERACTION_NOTES`). A note can raise a flag to red for classic high-risk pairs (for example an anti-inflammatory pain reliever with a blood thinner) but a flag only appears when a real label sentence backs it.
+4. The result is stored as `interactions` in `data/seed.json`.
+
+**Limits:** no flag does **not** mean a combination is safe. Labels do not list every interaction, only the 81 medicines in this app are checked, and class-level flags (for example "mentions NSAIDs") are broader than a named drug. Labels are cut to the sentence that matters, with reference numbers like "( 7.1 )" removed. Keep the disclaimer in front of people.
+
 ## Ports and CORS
 
 | Service  | URL |

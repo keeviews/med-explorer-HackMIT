@@ -69,6 +69,17 @@ class Similarity(BaseModel):
     drug_names: list[str]
 
 
+class AlertEvidence(BaseModel):
+    """A sentence from an FDA label that backs up a flag."""
+
+    drug_name: str
+    quote: str
+    section: str
+    source_url: str
+    matched_on: str
+    matched_term: str
+
+
 class CombinationAlert(BaseModel):
     severity: str
     code: str
@@ -79,6 +90,7 @@ class CombinationAlert(BaseModel):
     drug_names: list[str]
     fields: list[str] = Field(default_factory=list)
     data_label: str = "General overlap rule"
+    evidence: list[AlertEvidence] = Field(default_factory=list)
 
 
 class DrugDetailResponse(BaseModel):

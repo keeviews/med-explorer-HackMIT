@@ -60,3 +60,26 @@ class Indication(Base):
 
     drug: Mapped[Drug] = relationship(back_populates="indications")
     condition: Mapped[Condition | None] = relationship(back_populates="indications")
+
+
+class InteractionFact(Base):
+    """One sentence from an FDA label that mentions another medicine in this app.
+
+    Directed: it comes from the label of `drug_id` and is about `other_drug_id`.
+    The quote is a contiguous piece of the label; title/plain are our plain-language explanation.
+    """
+
+    __tablename__ = "interaction_facts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    drug_id: Mapped[int] = mapped_column(ForeignKey("drugs.id"), nullable=False, index=True)
+    other_drug_id: Mapped[int] = mapped_column(ForeignKey("drugs.id"), nullable=False, index=True)
+    matched_on: Mapped[str] = mapped_column(String(16), nullable=False)
+    matched_term: Mapped[str] = mapped_column(String(128), nullable=False)
+    section: Mapped[str] = mapped_column(String(64), nullable=False)
+    severity: Mapped[str] = mapped_column(String(16), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    plain: Mapped[str] = mapped_column(Text, nullable=False)
+    quote: Mapped[str] = mapped_column(Text, nullable=False)
+    source: Mapped[str] = mapped_column(String(128), nullable=False)
+    source_url: Mapped[str] = mapped_column(String(512), nullable=False)

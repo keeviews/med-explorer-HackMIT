@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.config import SEED_PATH
 from app.db import Base, SessionLocal, engine
-from app.models import Condition, Drug, Indication
+from app.models import Condition, Drug, Indication, InteractionFact
 from app.suggest import normalize_text
 
 
@@ -88,11 +88,29 @@ def seed_database(session: Session | None = None) -> dict[str, int]:
                 )
             )
 
+        for item in payload.get("interactions", []):
+            session.add(
+                InteractionFact(
+                    drug_id=drugs_by_name[normalize_text(item["drug"])].id,
+                    other_drug_id=drugs_by_name[normalize_text(item["other"])].id,
+                    matched_on=item["matched_on"],
+                    matched_term=item["matched_term"],
+                    section=item["section"],
+                    severity=item["severity"],
+                    title=item["title"],
+                    plain=item["plain"],
+                    quote=item["quote"],
+                    source=item["source"],
+                    source_url=item["source_url"],
+                )
+            )
+
         session.commit()
         return {
             "conditions": session.scalar(select(func.count()).select_from(Condition)) or 0,
             "drugs": session.scalar(select(func.count()).select_from(Drug)) or 0,
             "indications": session.scalar(select(func.count()).select_from(Indication)) or 0,
+            "interactions": session.scalar(select(func.count()).select_from(InteractionFact)) or 0,
         }
     except Exception:
         session.rollback()
@@ -116,5 +134,7 @@ def database_is_seeded(session: Session) -> bool:
         return False
     # A database built from an older data/seed.json has a different drug count.
     # Rebuilding is safe: the database only ever holds data derived from seed.json.
-    expected = len(json.loads(SEED_PATH.read_text(encoding="utf-8"))["drugs"])
-    return session.scalar(select(func.count()).select_from(Drug)) == expected
+    payload = json.loads(SEED_PATH.read_text(encoding="utf-8"))
+    if session.scalar(select(func.count()).select_from(Drug)) != len(payload["drugs"]):
+        return False
+    return session.scalar(select(func.count()).select_from(InteractionFact)) == len(payload.get("interactions", []))

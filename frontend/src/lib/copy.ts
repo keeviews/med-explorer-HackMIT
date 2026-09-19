@@ -58,6 +58,8 @@ export const COPY = {
     legendSame: "Same",
     legendAsk: "Ask first",
     alertUrgent: "Ask before combining",
+    labelSays: "What the FDA label says",
+    seeLabel: "See the FDA label",
     alertDiscuss: "Worth asking about",
     alertAsk: "Ask your doctor before changing anything.",
     importOk: (mapped: number, extra: number) =>
@@ -107,7 +109,7 @@ export const COPY = {
       "Not a complete interaction checker. Compare is not a recommendation. MyChart uses patient sign-in at Epic, never a password typed here.",
     compareTitle: "Compare",
     compareIntro:
-      "Green marks matching fields. Red marks sample flags for combinations to review with a clinician — not an order to stop a medicine.",
+      "Green marks matching fields. Red marks flags for combinations to review with a clinician — not an order to stop a medicine.",
     compareEmptyTitle: "Add at least two medicines to compare.",
     compareEmptyBody: "Use Compare on search results. Up to four at a time.",
     compareLoading: "Loading…",
@@ -146,8 +148,10 @@ export const COPY = {
     notListed: "Not listed",
     legendSame: "Matching fields",
     legendAsk: "Combination flag",
-    alertUrgent: "Sample flag — ask before combining",
-    alertDiscuss: "Sample note — overlap to discuss",
+    alertUrgent: "Flag — ask before combining",
+    labelSays: "What the FDA label says",
+    seeLabel: "See the FDA label",
+    alertDiscuss: "Note — worth discussing",
     alertAsk: "Ask your clinician before changing anything.",
     importOk: (mapped: number, extra: number) =>
       extra

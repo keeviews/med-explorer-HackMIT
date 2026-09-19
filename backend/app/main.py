@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.compare import (
     load_drugs_by_ids,
     load_drugs_by_names,
+    load_interaction_facts,
     parse_id_list,
     parse_name_list,
     serialize_drug,
@@ -160,9 +161,9 @@ def get_drug(drug_id: int, session: Session = Depends(get_session)) -> DrugDetai
     )
 
 
-def _payload_for_drugs(found: list, limit: int) -> CompareResponse:
+def _payload_for_drugs(session: Session, found: list, limit: int) -> CompareResponse:
     details = [serialize_drug(row) for row in found]
-    insights = build_insights(details)
+    insights = build_insights(details, load_interaction_facts(session, [row.id for row in found]))
     return CompareResponse(
         disclaimer=DISCLAIMER,
         data_notice=COMPARE_DATA_NOTICE,
@@ -231,7 +232,7 @@ def compare(
     session: Session = Depends(get_session),
 ) -> CompareResponse:
     found = _load_requested_drugs(session, ids, names, COMPARE_LIMIT)
-    return _payload_for_drugs(found, COMPARE_LIMIT)
+    return _payload_for_drugs(session, found, COMPARE_LIMIT)
 
 
 @app.get("/review", response_model=CompareResponse)
@@ -241,7 +242,7 @@ def review(
     session: Session = Depends(get_session),
 ) -> CompareResponse:
     found = _load_requested_drugs(session, ids, names, REVIEW_LIMIT)
-    return _payload_for_drugs(found, REVIEW_LIMIT)
+    return _payload_for_drugs(session, found, REVIEW_LIMIT)
 
 
 def _import_payload(session: Session, medications: list, source: str) -> FhirImportResponse:

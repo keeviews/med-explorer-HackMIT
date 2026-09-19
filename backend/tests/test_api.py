@@ -225,3 +225,65 @@ def test_side_effect_overlap_is_still_highlighted():
     body = client.get("/compare", params={"names": "Cetirizine,Loratadine"}).json()
     overlaps = [row for row in body["similarities"] if row["field"] == "side_effects"]
     assert any(row["value"] == "drowsiness" for row in overlaps)
+
+
+# ---------------------------------------------------------------------------
+# Interaction flags: every flag is backed by a real FDA label sentence
+# ---------------------------------------------------------------------------
+def _label_alerts(names):
+    body = client.get("/review", params={"names": names}).json()
+    return [row for row in body["alerts"] if row["code"] == "label_interaction"]
+
+
+def test_warfarin_and_ibuprofen_are_flagged_red_with_label_proof():
+    alerts = _label_alerts("Warfarin,Ibuprofen")
+    assert len(alerts) == 1
+    alert = alerts[0]
+    assert alert["severity"] == "urgent_seed"
+    assert "bleeding" in alert["detail"].lower()
+    assert alert["evidence"]
+    quotes = " ".join(item["quote"] for item in alert["evidence"]).lower()
+    assert "warfarin" in quotes or "anticoagulant" in quotes
+    assert all(item["source_url"].startswith("https://dailymed.nlm.nih.gov/") for item in alert["evidence"])
+
+
+def test_opioid_with_benzodiazepine_is_flagged_red():
+    alerts = _label_alerts("Tramadol,Alprazolam")
+    assert alerts and alerts[0]["severity"] == "urgent_seed"
+    assert "breathing" in alerts[0]["detail"].lower()
+
+
+def test_clopidogrel_with_omeprazole_quotes_the_avoid_warning():
+    alerts = _label_alerts("Clopidogrel,Omeprazole")
+    assert alerts and alerts[0]["severity"] == "urgent_seed"
+    assert any("avoid" in item["quote"].lower() for item in alerts[0]["evidence"])
+
+
+def test_other_known_pairs_are_flagged():
+    for names in ("Sertraline,Sumatriptan", "Lisinopril,Spironolactone", "Levothyroxine,Omeprazole", "Simvastatin,Amlodipine"):
+        assert _label_alerts(names), names
+
+
+def test_unrelated_medicines_and_no_effect_sentences_are_not_flagged():
+    # Metformin and cetirizine never mention each other. The tadalafil label says it had NO effect on
+    # warfarin, which is reassurance, not a warning, so it must not become a flag.
+    assert not _label_alerts("Metformin,Cetirizine")
+    assert not _label_alerts("Tadalafil,Warfarin")
+
+
+def test_every_flag_is_readable_and_has_proof():
+    names = "Warfarin,Ibuprofen,Sertraline,Lisinopril,Metformin,Amlodipine,Simvastatin,Aspirin,Omeprazole,Tramadol,Alprazolam"
+    for alert in _label_alerts(names):
+        assert alert["title"].strip() and alert["detail"].strip()
+        assert "seed" not in alert["detail"].lower()
+        assert 1 <= len(alert["evidence"]) <= 3
+        for item in alert["evidence"]:
+            assert item["quote"].strip()
+            assert item["section"]
+            assert item["source_url"].startswith("https://dailymed.nlm.nih.gov/")
+
+
+def test_compare_endpoint_also_returns_label_flags():
+    body = client.get("/compare", params={"names": "Warfarin,Ibuprofen"}).json()
+    assert any(row["code"] == "label_interaction" for row in body["alerts"])
+    assert body["overlap_summary"]
