@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Camera, Check, Images, LoaderCircle, RefreshCw, ScanLine, ShieldCheck, Trash2, X } from "lucide-react"
+import { Camera, Check, Images, LoaderCircle, RefreshCw, ScanLine, Trash2, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { fetchMedicineResolution } from "@/lib/api"

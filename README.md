@@ -35,7 +35,7 @@ Search results include **Add to compare**. The sticky tray holds up to four medi
 
 Matching seed fields (same route, shared condition, overlapping listed side effects, and so on) are highlighted in **sage**. **Red** marks illustrative seed flags such as two medicines in the same class, or an ACE inhibitor plus an ARB. That is **not** a complete interaction checker and **not** an instruction to stop or cut a medicine — the copy tells you to ask your clinician whether every item is still needed.
 
-**Currently taking** is stored in this browser (`localStorage`), with a past-notes history. You can fill it from search, or from a SMART on FHIR / demo FHIR import. **Review current list for overlap** calls `GET /review?ids=` (up to 12). Moving a medicine to past notes only updates your local list.
+**Currently taking** is stored in this browser (`localStorage`), with a past-notes history. You can fill it from search, or from a SMART on FHIR / demo FHIR import. **Review current list for overlap** calls `GET /review?ids=` (up to 50). Moving a medicine to past notes only updates your local list.
 
 Side effects shown are common ones that appear in the FDA label — not a complete list. Overlap flags are general rules (same drug class, ACE inhibitor + ARB, and so on), not a full interaction checker.
 

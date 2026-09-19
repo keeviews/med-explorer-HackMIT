@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react"
+import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from "react"
 import { LoaderCircle, Search } from "lucide-react"
 
 import { CompareTray } from "@/components/CompareTray"
@@ -38,6 +38,34 @@ const FALLBACK_CHIPS = [
 
 type Status = "idle" | "loading" | "ok" | "empty" | "error"
 
+function normalized(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
+}
+
+function conditionMatches(query: string, conditions: ConditionSummary[]) {
+  const search = normalized(query)
+  if (!search) return []
+
+  return conditions
+    .map((condition) => {
+      const names = [condition.name, ...condition.aliases]
+      const bestRank = Math.min(
+        ...names.map((name) => {
+          const candidate = normalized(name)
+          if (candidate.startsWith(search)) return 0
+          if (candidate.split(" ").some((word) => word.startsWith(search))) return 1
+          if (candidate.includes(search)) return 2
+          return Number.POSITIVE_INFINITY
+        }),
+      )
+      return { condition, bestRank }
+    })
+    .filter((match) => Number.isFinite(match.bestRank))
+    .sort((a, b) => a.bestRank - b.bestRank || a.condition.name.localeCompare(b.condition.name))
+    .slice(0, 6)
+    .map((match) => match.condition)
+}
+
 export default function App() {
   const { copy, simple } = useLanguage()
   const [query, setQuery] = useState("")
@@ -45,6 +73,8 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [payload, setPayload] = useState<SuggestResponse | null>(null)
   const [conditions, setConditions] = useState<ConditionSummary[]>([])
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false)
+  const [activeSuggestion, setActiveSuggestion] = useState(-1)
   const [picks, setPicks] = useState<ComparePick[]>(() => loadComparePicks())
   const [compareOpen, setCompareOpen] = useState(false)
   const [cabinet, setCabinet] = useState(() => loadCabinet())
@@ -77,6 +107,11 @@ export default function App() {
     return names.map((name) => ({ name, label: shortCondition(name, simple) }))
   }, [conditions, simple])
 
+  const conditionSuggestions = useMemo(
+    () => conditionMatches(query, conditions),
+    [conditions, query],
+  )
+
   const compareIds = useMemo(() => picks.map((pick) => pick.id), [picks])
   const selectedIds = useMemo(() => new Set(compareIds), [compareIds])
   const compareFull = picks.length >= COMPARE_LIMIT
@@ -108,6 +143,32 @@ export default function App() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     void runSearch(query)
+  }
+
+  function chooseCondition(condition: ConditionSummary) {
+    setQuery(condition.name)
+    setSuggestionsOpen(false)
+    setActiveSuggestion(-1)
+    void runSearch(condition.name)
+  }
+
+  function onQueryKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (!suggestionsOpen || conditionSuggestions.length === 0) return
+    if (event.key === "ArrowDown") {
+      event.preventDefault()
+      setActiveSuggestion((current) => (current + 1) % conditionSuggestions.length)
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault()
+      setActiveSuggestion((current) =>
+        current <= 0 ? conditionSuggestions.length - 1 : current - 1,
+      )
+    } else if (event.key === "Enter" && activeSuggestion >= 0) {
+      event.preventDefault()
+      chooseCondition(conditionSuggestions[activeSuggestion])
+    } else if (event.key === "Escape") {
+      setSuggestionsOpen(false)
+      setActiveSuggestion(-1)
+    }
   }
 
   function togglePick(pick: ComparePick) {
@@ -165,13 +226,57 @@ export default function App() {
           <label className="sr-only" htmlFor="condition-query">
             {copy.searchLabel}
           </label>
-          <Input
-            id="condition-query"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={copy.searchPlaceholder}
-            autoComplete="off"
-          />
+          <div className="relative min-w-0 flex-1">
+            <Input
+              id="condition-query"
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value)
+                setSuggestionsOpen(true)
+                setActiveSuggestion(-1)
+              }}
+              onFocus={() => setSuggestionsOpen(true)}
+              onBlur={() => setSuggestionsOpen(false)}
+              onKeyDown={onQueryKeyDown}
+              placeholder={copy.searchPlaceholder}
+              autoComplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={suggestionsOpen && conditionSuggestions.length > 0}
+              aria-controls="condition-suggestions"
+              aria-activedescendant={
+                activeSuggestion >= 0 ? `condition-suggestion-${activeSuggestion}` : undefined
+              }
+            />
+            {suggestionsOpen && conditionSuggestions.length > 0 ? (
+              <ul
+                id="condition-suggestions"
+                role="listbox"
+                className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-border bg-card py-1 shadow-lg"
+              >
+                {conditionSuggestions.map((condition, index) => (
+                  <li key={condition.name} role="option" aria-selected={index === activeSuggestion}>
+                    <button
+                      id={`condition-suggestion-${index}`}
+                      type="button"
+                      className={
+                        index === activeSuggestion
+                          ? "w-full bg-primary/10 px-3 py-2 text-left text-sm text-foreground"
+                          : "w-full px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
+                      }
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => chooseCondition(condition)}
+                    >
+                      <span className="font-semibold">{shortCondition(condition.name, simple)}</span>
+                      {condition.aliases.length > 0 ? (
+                        <span className="ml-2 text-muted-foreground">{condition.aliases[0]}</span>
+                      ) : null}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
           <Button type="submit" size="lg" disabled={status === "loading"}>
             {status === "loading" ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />

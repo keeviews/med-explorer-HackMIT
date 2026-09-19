@@ -20,7 +20,7 @@ CORS_ORIGINS = [
 # Compare tables stay readable at this cap (UI and API share the same limit).
 COMPARE_LIMIT = 4
 # Personal "currently taking" review can include a longer local list.
-REVIEW_LIMIT = 12
+REVIEW_LIMIT = 50
 EPIC_CLIENT_ID = os.environ.get("EPIC_CLIENT_ID", "").strip()
 EPIC_REDIRECT_URI = os.environ.get(
     "EPIC_REDIRECT_URI",

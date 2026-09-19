@@ -168,7 +168,7 @@ export function MyMedicines({
           {cabinet.current.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{copy.takingEmpty}</p>
           ) : (
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 max-h-[32rem] space-y-2 overflow-y-scroll pr-2">
               {cabinet.current.map((item) => (
                 <li
                   key={item.id}

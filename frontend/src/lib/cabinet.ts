@@ -1,6 +1,6 @@
 import type { MedicineNote, UnmappedMedication } from "@/lib/types"
 
-export const CABINET_LIMIT = 12
+export const CABINET_LIMIT = 50
 
 const STORAGE_KEY = "discussmeds.cabinet"
 
