@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @theme inline {
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -29,22 +29,22 @@
 
 :root {
   --radius: 0.7rem;
-  --background: #f4f0e6;
-  --foreground: #1c2b24;
-  --card: #fffdf8;
-  --card-foreground: #1c2b24;
-  --primary: #2f6f5e;
-  --primary-foreground: #f4fbf7;
-  --secondary: #e7efe8;
-  --secondary-foreground: #24352c;
-  --muted: #ebe4d4;
-  --muted-foreground: #5b675f;
-  --accent: #efe4c8;
-  --accent-foreground: #3d2e12;
-  --border: #d9d0bf;
-  --input: #d9d0bf;
-  --ring: #2f6f5e;
-  --destructive: #9b2c2c;
+  --background: #f7f9f9;
+  --foreground: #2c3e50;
+  --card: #ffffff;
+  --card-foreground: #2c3e50;
+  --primary: #16a085;
+  --primary-foreground: #f7f9f9;
+  --secondary: #34495e;
+  --secondary-foreground: #f7f9f9;
+  --muted: #e8eeee;
+  --muted-foreground: #34495e;
+  --accent: #f39c12;
+  --accent-foreground: #2c3e50;
+  --border: #cfd9dc;
+  --input: #cfd9dc;
+  --ring: #16a085;
+  --destructive: #b83a32;
 }
 
 @layer base {

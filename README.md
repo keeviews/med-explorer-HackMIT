@@ -131,6 +131,27 @@ python scripts/ingest_stub.py --dry-run
 
 The UI calls the API directly (`VITE_API_URL` in `frontend/.env`). FastAPI allows those localhost origins.
 
+## Deploy as a web app
+
+The label scanner does not require a Python OCR server. It uses the official
+PaddleOCR.js browser SDK after a user captures a label: the photo remains in
+the browser and the large OCR runtime downloads only when the scan begins.
+The API receives the extracted text only to find matching medicines from this
+app's dataset.
+
+1. Deploy this repository's `Dockerfile` to any container host. Set `CORS_ORIGINS`
+   to the comma-separated URL(s) where the web UI will be served, for example
+   `https://medicines.example.com`.
+2. Set `VITE_API_URL` to that API URL (see `frontend/.env.example`) and build
+   the Vite app with `cd frontend && npm run build`.
+3. Deploy `frontend/dist` to a static host such as Cloudflare Pages, Netlify,
+   or Vercel. A camera requires HTTPS in production; `localhost` is the only
+   normal development exception.
+
+The browser still asks each visitor for camera permission. OCR is not an
+identification or prescribing decision: the person must select a proposed
+medicine before it can be added to their list.
+
 ## MyChart / Epic (SMART on FHIR)
 
 DiscussMeds does **not** collect a MyChart password. The supported live path is Epic’s patient standalone SMART on FHIR launch: the patient signs in at MyChart, grants medication read access, and this app maps `MedicationRequest` rows onto seed drugs (RxNorm id, then name).

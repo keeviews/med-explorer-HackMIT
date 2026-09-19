@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { ClipboardList, Hospital, LoaderCircle } from "lucide-react"
 
 import { InsightBanners } from "@/components/InsightBanners"
+import { MedicineScanner } from "@/components/MedicineScanner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { fetchMyChartDemoImport, fetchMyChartStatus, fetchReview } from "@/lib/api"
@@ -112,6 +113,7 @@ export function MyMedicines({
   function sourceLabel(source?: string): string | null {
     if (source === "fhir_demo") return copy.sourceDemo
     if (source === "mychart") return copy.sourceMyChart
+    if (source === "label_scan") return "label scan"
     if (source === "manual") return null
     return source ?? null
   }
@@ -248,6 +250,21 @@ export function MyMedicines({
           )}
         </div>
       </div>
+
+      <MedicineScanner
+        disabled={cabinet.current.length >= CABINET_LIMIT}
+        onAdd={(candidates) =>
+          onImport(
+            candidates.map((candidate) => ({
+              id: candidate.id,
+              name: candidate.name,
+              addedAt: new Date().toISOString(),
+              source: "label_scan",
+            })),
+            [],
+          )
+        }
+      />
 
       {status === "short" ? (
         <p className="rounded-lg border border-dashed border-border bg-card/70 p-3 text-sm text-muted-foreground">

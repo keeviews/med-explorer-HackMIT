@@ -121,6 +121,22 @@ export type FhirImportResponse = {
   unmapped_count: number
 }
 
+export type ScanCandidate = {
+  id: number
+  name: string
+  strength: string | null
+  form: string | null
+  confidence: number
+}
+
+export type MedicineScanResponse = {
+  disclaimer: string
+  mode: "demo" | "ocr"
+  notice: string
+  raw_text: string
+  candidates: ScanCandidate[]
+}
+
 export class ApiError extends Error {
   status?: number
 }

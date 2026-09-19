@@ -10,8 +10,11 @@ API_HOST = "127.0.0.1"
 API_PORT = 18765
 
 CORS_ORIGINS = [
-    "http://127.0.0.1:41789",
-    "http://localhost:41789",
+    origin.strip()
+    for origin in os.environ.get(
+        "CORS_ORIGINS", "http://127.0.0.1:41789,http://localhost:41789"
+    ).split(",")
+    if origin.strip()
 ]
 
 # Compare tables stay readable at this cap (UI and API share the same limit).

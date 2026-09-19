@@ -40,7 +40,8 @@ from app.fhir_import import (
     setup_message,
 )
 from app.insights import build_insights
-from app.models import Condition
+from app.medicine_match import resolve_text
+from app.models import Condition, Drug
 from app.schemas import (
     CombinationAlert,
     CompareResponse,
@@ -51,6 +52,8 @@ from app.schemas import (
     HealthResponse,
     MappedMedication,
     MyChartStatusResponse,
+    MedicineScanResponse,
+    MedicineResolveRequest,
     SeededConditionsResponse,
     Similarity,
     SuggestResponse,
@@ -91,7 +94,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -270,6 +273,24 @@ def mychart_status() -> MyChartStatusResponse:
 def mychart_demo_import(session: Session = Depends(get_session)) -> FhirImportResponse:
     medications = extract_medications_from_bundle(demo_bundle())
     return _import_payload(session, medications, "fhir_demo")
+
+
+@app.post("/medicines/resolve", response_model=MedicineScanResponse)
+def resolve_medicine_text(
+    payload: MedicineResolveRequest,
+    session: Session = Depends(get_session),
+) -> MedicineScanResponse:
+    """Match text produced in the browser without uploading the label photo."""
+    raw_text = payload.raw_text.strip()
+    return MedicineScanResponse(
+        mode="ocr",
+        notice=(
+            "Your browser read this text with PaddleOCR. Check the printed label and select a match "
+            "before adding it; no medicine is added automatically."
+        ),
+        raw_text=raw_text,
+        candidates=resolve_text(raw_text, session.query(Drug).all()),
+    )
 
 
 @app.get("/integrations/mychart/callback")

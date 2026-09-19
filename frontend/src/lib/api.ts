@@ -1,4 +1,4 @@
-import { ApiError, type CompareResponse, type ConditionsResponse, type FhirImportResponse, type MyChartStatus, type SuggestResponse } from "@/lib/types"
+import { ApiError, type CompareResponse, type ConditionsResponse, type FhirImportResponse, type MedicineScanResponse, type MyChartStatus, type SuggestResponse } from "@/lib/types"
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ??
   "http://127.0.0.1:18765"
@@ -89,5 +89,20 @@ export async function fetchMyChartDemoImport(): Promise<FhirImportResponse> {
   } catch (cause) {
     if (cause instanceof ApiError) throw cause
     throw new ApiError("Could not load the demo MyChart / FHIR medication list.")
+  }
+}
+
+export async function fetchMedicineResolution(rawText: string): Promise<MedicineScanResponse> {
+  const url = new URL("/medicines/resolve", API_BASE)
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ raw_text: rawText }),
+    })
+    return await readJson<MedicineScanResponse>(response)
+  } catch (cause) {
+    if (cause instanceof ApiError) throw cause
+    throw new ApiError("Could not reach the label-scanning service.")
   }
 }

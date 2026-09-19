@@ -19,6 +19,25 @@ def test_suggest_requires_query():
     assert response.status_code == 422
 
 
+def test_resolve_browser_ocr_text_returns_a_confirmable_match():
+    response = client.post(
+        "/medicines/resolve",
+        json={"raw_text": "Lisinopril 10 mg tablet\nTake one tablet daily"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["mode"] == "ocr"
+    assert body["candidates"] == [
+        {
+            "id": 1,
+            "name": "Lisinopril",
+            "strength": "10 mg",
+            "form": "tablet",
+            "confidence": 0.99,
+        }
+    ]
+
+
 def test_suggest_hypertension_returns_ranked_drugs_and_disclaimer():
     response = client.get("/suggest", params={"q": "hypertension", "limit": 20})
     assert response.status_code == 200

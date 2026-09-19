@@ -137,3 +137,23 @@ class FhirImportResponse(BaseModel):
     unmapped: list[UnmappedMedication] = Field(default_factory=list)
     mapped_count: int
     unmapped_count: int
+
+
+class ScanCandidate(BaseModel):
+    id: int
+    name: str
+    strength: str | None = None
+    form: str | None = None
+    confidence: float
+
+
+class MedicineScanResponse(BaseModel):
+    disclaimer: str = DISCLAIMER
+    mode: str
+    notice: str
+    raw_text: str
+    candidates: list[ScanCandidate] = Field(default_factory=list)
+
+
+class MedicineResolveRequest(BaseModel):
+    raw_text: str = Field(min_length=1, max_length=10_000)
