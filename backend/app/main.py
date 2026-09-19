@@ -26,6 +26,7 @@ from app.db import Base, engine, get_session
 from app.disclaimer import (
     COMPARE_DATA_NOTICE,
     COMPARE_NOTE,
+    DATA_LABEL,
     DATA_NOTICE,
     DISCLAIMER,
     OVERLAP_NOTE,
@@ -138,7 +139,7 @@ def suggest(
                 indication_snippet=hit.indication_snippet,
                 matched_condition=hit.matched_condition,
                 source=hit.source,
-                data_label="Illustrative seed data",
+                data_label=DATA_LABEL,
                 score=hit.score,
             )
             for hit in hits

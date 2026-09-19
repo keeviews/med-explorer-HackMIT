@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.disclaimer import DISCLAIMER
+from app.disclaimer import DATA_LABEL, DISCLAIMER
 from app.main import app
 
 client = TestClient(app)
@@ -49,8 +49,8 @@ def test_suggest_hypertension_returns_ranked_drugs_and_disclaimer():
     assert "Lisinopril" in names
     assert "Amlodipine" in names
     assert all(isinstance(row["id"], int) and row["id"] > 0 for row in body["results"])
-    assert all(row["source"] == "seed:illustrative" for row in body["results"])
-    assert all(row["data_label"] == "Illustrative seed data" for row in body["results"])
+    assert all(row["source"].startswith("openfda:label:") for row in body["results"])
+    assert all(row["data_label"] == DATA_LABEL for row in body["results"])
 
 
 def test_suggest_alias_hay_fever():
@@ -101,8 +101,8 @@ def test_compare_two_drugs_by_id_includes_disclaimer_and_seed_fields():
     assert lisinopril_row["typical_use_note"]
     assert lisinopril_row["monitoring_note"]
     assert "Hypertension" in lisinopril_row["linked_conditions"]
-    assert lisinopril_row["data_label"] == "Illustrative seed data"
-    assert "SIDER" in body["data_notice"]
+    assert lisinopril_row["data_label"] == DATA_LABEL
+    assert "FDA" in body["data_notice"]
 
 
 def test_compare_by_name_and_unknown_id():
@@ -186,7 +186,42 @@ def test_mychart_demo_import_maps_seed_drugs_and_keeps_unmapped():
     assert "Omeprazole" in names
     assert "Loratadine" in names
     unmapped_names = {row["name"] for row in body["unmapped"]}
-    assert any("Atorvastatin" in name for name in unmapped_names)
+    assert "Atorvastatin" in names  # now in the dataset, so it maps
+    assert any("Fish Oil" in name for name in unmapped_names)
     assert body["source"] == "fhir_demo"
     assert body["mapped_count"] >= 4
     assert body["unmapped_count"] >= 1
+
+
+def test_search_finds_real_drugs_for_new_conditions():
+    for query, expected in (
+        ("high cholesterol", "Atorvastatin"),
+        ("depression", "Sertraline"),
+        ("infection", "Amoxicillin"),
+        ("asthma", "Albuterol"),
+        ("blood thinner", "Warfarin"),
+        ("hypothyroidism", "Levothyroxine"),
+    ):
+        body = client.get("/suggest", params={"q": query, "limit": 50}).json()
+        names = [row["drug_name"] for row in body["results"]]
+        assert expected in names, f"{expected} missing for {query!r}: {names}"
+
+
+def test_rx_otc_comes_from_fda_labels():
+    body = client.get("/compare", params={"names": "Ibuprofen,Lisinopril,Acetaminophen"}).json()
+    by_name = {row["drug_name"]: row["rx_otc"] for row in body["drugs"]}
+    assert by_name["Lisinopril"] == "Rx"
+    assert by_name["Acetaminophen"] == "OTC"
+    assert by_name["Ibuprofen"].startswith("OTC or Rx")
+
+
+def test_new_classes_trigger_duplicate_class_flags():
+    for pair in ("Atorvastatin,Rosuvastatin", "Ibuprofen,Naproxen", "Sertraline,Escitalopram", "Warfarin,Apixaban"):
+        body = client.get("/compare", params={"names": pair}).json()
+        assert any(row["code"] == "duplicate_class" for row in body["alerts"]), pair
+
+
+def test_side_effect_overlap_is_still_highlighted():
+    body = client.get("/compare", params={"names": "Cetirizine,Loratadine"}).json()
+    overlaps = [row for row in body["similarities"] if row["field"] == "side_effects"]
+    assert any(row["value"] == "drowsiness" for row in overlaps)

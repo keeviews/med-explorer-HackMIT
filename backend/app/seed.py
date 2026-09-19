@@ -112,4 +112,9 @@ def database_is_seeded(session: Session) -> bool:
     sample = session.scalar(
         select(Drug.drug_class).where(Drug.drug_class.isnot(None)).limit(1)
     )
-    return bool(sample)
+    if not sample:
+        return False
+    # A database built from an older data/seed.json has a different drug count.
+    # Rebuilding is safe: the database only ever holds data derived from seed.json.
+    expected = len(json.loads(SEED_PATH.read_text(encoding="utf-8"))["drugs"])
+    return session.scalar(select(func.count()).select_from(Drug)) == expected

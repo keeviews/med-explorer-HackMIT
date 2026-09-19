@@ -3,7 +3,7 @@ VENV := backend/.venv
 API_HOST := 127.0.0.1
 API_PORT := 18765
 
-.PHONY: setup setup-backend setup-frontend seed ingest-stub backend frontend test
+.PHONY: setup setup-backend setup-frontend seed build-data ingest-stub backend frontend test
 
 setup: setup-backend setup-frontend seed
 
@@ -16,6 +16,9 @@ setup-frontend:
 
 seed:
 	$(VENV)/bin/python scripts/seed_db.py
+
+build-data:
+	$(PYTHON) scripts/build_seed_from_openfda.py
 
 ingest-stub:
 	$(PYTHON) scripts/ingest_stub.py --dry-run

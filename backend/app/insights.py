@@ -14,7 +14,7 @@ from typing import Any
 from app.config import SEED_PATH
 from app.disclaimer import TALK_WITH_CLINICIAN
 
-DATA_LABEL = "Illustrative seed data"
+DATA_LABEL = "General overlap rule"
 
 
 @lru_cache(maxsize=1)
@@ -35,12 +35,12 @@ def build_insights(details: list[dict[str, Any]]) -> dict[str, Any]:
         urgent = [row for row in alerts if row["severity"] == "urgent_seed"]
         if urgent:
             overlap_summary = (
-                "Seed flags marked possible overlap in red. Bring this list to "
+                "Flags marked possible overlap in red. Bring this list to "
                 "your clinician — do not stop or cut a medicine based on this screen."
             )
         else:
             overlap_summary = (
-                "Seed notes marked class overlap to discuss. This is not advice "
+                "Notes marked class overlap to discuss. This is not advice "
                 "to drop a medicine."
             )
     return {
@@ -49,8 +49,8 @@ def build_insights(details: list[dict[str, Any]]) -> dict[str, Any]:
         "overlap_summary": overlap_summary,
         "talk_with_clinician": TALK_WITH_CLINICIAN,
         "overlap_note": (
-            "Sage = matching seed fields. Red = illustrative combination / "
-            "duplicate-class flags, not a complete interaction checker."
+            "Sage = matching fields. Red = combination / duplicate-class "
+            "flags, not a complete interaction checker."
         ),
     }
 
@@ -166,7 +166,7 @@ def _duplicate_class_alerts(details: list[dict[str, Any]]) -> list[dict[str, Any
                 "code": "duplicate_class",
                 "title": f"More than one {klass} on this list",
                 "detail": (
-                    f"{_join_names(names)} share the same seed drug class. "
+                    f"{_join_names(names)} are in the same drug class. "
                     "That kind of overlap is something to ask a clinician about — "
                     "for example whether you still need each one — not an instruction "
                     "to drop a medicine yourself."

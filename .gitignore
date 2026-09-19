@@ -25,3 +25,6 @@ data/*.db-journal
 .DS_Store
 .idea/
 .vscode/
+
+# openFDA response cache (rebuilt by scripts/build_seed_from_openfda.py)
+data/openfda_cache/

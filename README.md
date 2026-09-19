@@ -8,12 +8,12 @@ This is **decision support only**. It is not a prescribing tool, not a diagnosis
 
 - FastAPI backend with `GET /health`, `GET /suggest`, `GET /compare?ids=`, `GET /review?ids=` (longer personal list), and `GET /drugs/{id}`
 - SQLite schema: `conditions`, `drugs` (name, optional RxNorm ID, class/route/Rx-OTC, seed side effects and notes), `indications` (raw text + source)
-- Illustrative **seed data** so search, compare, and overlap flags work without downloading external dumps
+- Real **FDA drug label data** ([openFDA](https://open.fda.gov/apis/drug/label/)) for 81 common medicines and 25 conditions, saved in `data/seed.json` so search, compare, and overlap flags work offline
 - React + TypeScript + Vite UI with search, a capped compare list (up to 4), sage/red cell highlighting, a private currently-taking list, MyChart/SMART on FHIR wiring plus a demo FHIR import, empty/error states, and a prominent disclaimer
 - A **Simple / More detail** language toggle (defaults to Simple, saved in this browser) so the same screens stay readable for anyone, with extra technical notes only when you want them
-- An ingest **stub** documenting the later DrugCentral + RxNorm pipeline
+- A build script (`scripts/build_seed_from_openfda.py`) that regenerates the data from openFDA and checks the wording against the FDA labels
 
-Not included: accounts, insurance, pharmacy pricing, allergy filtering, or a complete interaction/DDI database. Seed overlap flags are discussion starters only.
+Not included: accounts, insurance, pharmacy pricing, allergy filtering, or a complete interaction/DDI database. Overlap flags are discussion starters only.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ Matching seed fields (same route, shared condition, overlapping listed side effe
 
 **Currently taking** is stored in this browser (`localStorage`), with a past-notes history. You can fill it from search, or from a SMART on FHIR / demo FHIR import. **Review current list for overlap** calls `GET /review?ids=` (up to 12). Moving a medicine to past notes only updates your local list.
 
-Side-effect, property, and overlap fields are **illustrative seed data**, not SIDER, OpenFDA, or complete labeling.
+Side effects shown are common ones that appear in the FDA label — not a complete list. Overlap flags are general rules (same drug class, ACE inhibitor + ARB, and so on), not a full interaction checker.
 
 ## Prerequisites
 
@@ -61,7 +61,7 @@ cd backend
 .venv/bin/uvicorn app.main:app --reload --host 127.0.0.1 --port 18765
 ```
 
-If the database file is missing or empty, the API seeds it on startup from `data/seed.json`.
+If the database file is missing or empty, the API seeds it on startup from `data/seed.json`. It also re-seeds on startup when the number of drugs in `data/seed.json` changes, so pulling new data just works.
 
 Terminal 2 — UI:
 
@@ -98,29 +98,31 @@ Backend tests:
 cd backend && .venv/bin/pytest
 ```
 
-## Seed data (important)
+## Data
 
-`data/seed.json` is a **development fixture**. It is not a clinical guideline, not a complete open-data extract, and not an endorsement of any medicine.
+`data/seed.json` is built from **U.S. FDA drug labels** (through [openFDA](https://open.fda.gov/apis/drug/label/)):
 
-RxNorm IDs in the seed file are public identifiers included so the schema is realistic. When the real ingest lands, those IDs should come from RxNorm/RxNav, not from this hand list.
+| Comes from the FDA | Written by the team (`scripts/curated_drugs.py`) |
+|---|---|
+| Whether a drug is prescription (Rx), over the counter (OTC), or both, judged from its real labels | Plain-language "used for", "how it works", and "how it is taken" |
+| The RxNorm ingredient id (NLM RxNav) | Common side effects, in everyday words |
+| A link to the drug's DailyMed label page and the label date, saved as `source` / `source_url` on every "used for" entry | "Ask a clinician about" notes and the overlap rules |
 
-## Next step: real open-data ingest
+Everything a person reads is written in plain language on purpose. When the data is built, each hand-written claim is **checked against the FDA label text** (is the use stated on a label? does the label mention each side effect?). Anything the labels do not confirm is reported and fixed instead of shipped.
 
-`scripts/ingest_stub.py` is a documented placeholder. It does **not** download the DrugCentral dump in this pass (size, Postgres load, and licensing/QA should be deliberate).
+Rx/OTC is judged per route (a drug taken by mouth uses its oral labels, so an IV-only prescription version does not change the answer for tablets) and ignores homeopathic products that only list an ingredient.
 
-Intended path:
-
-1. Download the DrugCentral PostgreSQL dump from [drugcentral.org/download](https://drugcentral.org/download)
-2. Load it into local Postgres (`structures` + `omop_relationship`)
-3. Extract `relationship_name = 'indication'` (not contraindications / off-label unless product scope expands)
-4. Normalize drug names to RxNorm RXCUI via RxNav or the RxNorm RRF files
-5. Keep raw indication text; map consumer synonyms onto `conditions`
-6. Write into this SQLite schema with `source=drugcentral:<release-date>`
-7. Later: attach labeled-effect sources (SIDER / OpenFDA) onto the same `drugs` compare fields — still as discussion data, not rankings
+Rebuild after editing wording or adding a drug (first run needs internet; responses are cached in `data/openfda_cache/`, which is git-ignored):
 
 ```bash
-python scripts/ingest_stub.py --dry-run
+python scripts/build_seed_from_openfda.py           # rewrites data/seed.json
+python scripts/build_seed_from_openfda.py --check   # verify only
+python scripts/seed_db.py                           # reload the local database
 ```
+
+Set `OPENFDA_API_KEY` (free at open.fda.gov) if you hit rate limits.
+
+Not included yet: over-the-counter cough and cold products such as dextromethorphan and guaifenesin, because their FDA labels list no side effects to confirm. `scripts/ingest_stub.py` (a DrugCentral placeholder) is no longer used.
 
 ## Ports and CORS
 
