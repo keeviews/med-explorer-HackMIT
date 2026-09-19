@@ -513,3 +513,105 @@ LEGACY_DRUG_ORDER = [
     "Loratadine", "Fluticasone (nasal)", "Montelukast", "Omeprazole", "Pantoprazole",
     "Famotidine", "Esomeprazole", "Sumatriptan", "Rizatriptan", "Topiramate", "Ubrogepant",
 ]
+
+# --------------------------------------------------------------------------
+# Drug-interaction facts (used by build_seed_from_openfda.py)
+#
+# CLASS_LABEL_TERMS: words an FDA label uses when it talks about a whole class of
+# medicines ("NSAIDs", "anticoagulants"), keyed by our drug class name. If drug A's label
+# mentions one of these, drug B (in that class) gets a flag with the label sentence as proof.
+#
+# INTERACTION_NOTES: the plain-language explanation shown to people, written by hand.
+# A flag is only shown when a real FDA label sentence backs it; these notes just explain it.
+# "a" and "b" can hold class names or drug names; a rule matches in either direction.
+# severity="urgent_seed" marks combinations clinicians treat as high-risk; it can only raise a flag, never lower it.
+# --------------------------------------------------------------------------
+CLASS_LABEL_TERMS = {
+    "ACE inhibitor": ["ACE inhibitor", "ACE-inhibitor", "angiotensin converting enzyme inhibitor", "angiotensin-converting enzyme inhibitor"],
+    "Angiotensin II receptor blocker": ["angiotensin receptor blocker", "angiotensin II receptor blocker", "ARB", "angiotensin II receptor antagonist"],
+    "Thiazide diuretic": ["thiazide", "diuretics"],
+    "Loop diuretic": ["loop diuretic", "diuretics"],
+    "Potassium-sparing diuretic": ["potassium-sparing", "potassium sparing"],
+    "Beta blocker": ["beta-blocker", "beta blocker", "beta-adrenergic blocking agent"],
+    "Calcium channel blocker": ["calcium channel blocker", "calcium-channel blocker"],
+    "Statin (lowers cholesterol)": ["statin", "HMG-CoA reductase inhibitor"],
+    "SSRI antidepressant": ["SSRI", "selective serotonin reuptake inhibitor"],
+    "Triptan": ["triptan", "5-HT1"],
+    "Benzodiazepine (calming medicine)": ["benzodiazepine", "CNS depressant"],
+    "Opioid pain reliever": ["opioid", "CNS depressant"],
+    "Sleep medicine (sedative-hypnotic)": ["sedative", "hypnotic", "CNS depressant"],
+    "Anticonvulsant (nerve pain and seizure medicine)": ["CNS depressant"],
+    "Muscle relaxant": ["muscle relaxant", "CNS depressant"],
+    "First-generation antihistamine": ["antihistamine", "CNS depressant"],
+    "Second-generation antihistamine": ["antihistamine"],
+    "NSAID (anti-inflammatory pain reliever)": ["NSAID", "nonsteroidal anti-inflammatory", "non-steroidal anti-inflammatory"],
+    "Blood thinner (anticoagulant)": ["anticoagulant", "blood thinner"],
+    "Antiplatelet": ["antiplatelet", "platelet aggregation inhibitor"],
+    "Proton pump inhibitor": ["proton pump inhibitor", "PPI"],
+    "H2 blocker": ["H2 blocker", "H2-receptor antagonist", "H2 receptor antagonist"],
+    "Penicillin antibiotic": ["penicillin"],
+    "Macrolide antibiotic": ["macrolide"],
+    "Cephalosporin antibiotic": ["cephalosporin"],
+    "Fluoroquinolone antibiotic": ["fluoroquinolone", "quinolone"],
+    "Tetracycline antibiotic": ["tetracycline"],
+    "Sulfonylurea": ["sulfonylurea"],
+    "PDE5 inhibitor (erectile dysfunction medicine)": ["PDE5", "phosphodiesterase"],
+    "Anti-nausea medicine": ["5-HT3"],
+}
+
+_ANTIBIOTICS = ["Penicillin antibiotic", "Macrolide antibiotic", "Cephalosporin antibiotic", "Fluoroquinolone antibiotic",
+                "Tetracycline antibiotic", "Urinary tract antibiotic", "Nitroimidazole antibiotic"]
+_SLEEPY = ["Benzodiazepine (calming medicine)", "Sleep medicine (sedative-hypnotic)",
+           "Anticonvulsant (nerve pain and seizure medicine)", "Muscle relaxant", "First-generation antihistamine"]
+_BP_PILLS = ["ACE inhibitor", "Angiotensin II receptor blocker"]
+_WATER_PILLS = ["Thiazide diuretic", "Loop diuretic"]
+_SEROTONIN = ["Triptan", "Opioid pain reliever", "Atypical antidepressant", "Anti-nausea medicine",
+              "Anti-anxiety medicine (buspirone type)"]
+
+INTERACTION_NOTES = [
+    dict(a=["Opioid pain reliever"], b=_SLEEPY + ["Atypical antidepressant"], severity="urgent_seed",
+         title="An opioid with another sleepy-making medicine",
+         plain="Taken together they can cause extreme sleepiness and slowed breathing, which can be life-threatening."),
+    dict(a=["Benzodiazepine (calming medicine)"], b=_SLEEPY,
+         title="Two medicines that both cause sleepiness",
+         plain="Both calm the nervous system. Together the sleepiness and slowed reactions can be stronger than expected."),
+    dict(a=["SSRI antidepressant"], b=_SEROTONIN,
+         title="Two medicines that both raise serotonin",
+         plain="Too much serotonin can cause agitation, a fast heartbeat, fever and stiff muscles (serotonin syndrome). Clinicians watch this combination closely."),
+    dict(a=["SSRI antidepressant"], b=["NSAID (anti-inflammatory pain reliever)"],
+         title="An antidepressant with an anti-inflammatory pain reliever",
+         plain="Together they can raise the chance of bleeding, especially in the stomach."),
+    dict(a=["NSAID (anti-inflammatory pain reliever)"], b=["Blood thinner (anticoagulant)"], severity="urgent_seed",
+         title="A pain reliever and a blood thinner",
+         plain="Together they can raise the chance of serious bleeding, especially in the stomach."),
+    dict(a=["NSAID (anti-inflammatory pain reliever)"], b=["Antiplatelet"], severity="urgent_seed",
+         title="A pain reliever and a medicine that thins the blood",
+         plain="Together they can raise the chance of stomach bleeding. Some pain relievers, like ibuprofen, can also weaken aspirin's heart protection."),
+    dict(a=["Blood thinner (anticoagulant)"], b=["Antiplatelet", "SSRI antidepressant"],
+         title="Two medicines that both raise bleeding risk",
+         plain="Together they can make bleeding more likely. Tell your clinician about every medicine you take."),
+    dict(a=["Blood thinner (anticoagulant)"], b=_ANTIBIOTICS,
+         title="A blood thinner and an antibiotic",
+         plain="Some antibiotics can strengthen a blood thinner like warfarin and raise bleeding risk. Extra blood tests are sometimes needed."),
+    dict(a=_BP_PILLS, b=["Potassium-sparing diuretic"],
+         title="Two medicines that can both raise potassium",
+         plain="Too much potassium can affect the heart. Blood tests are used to keep watch."),
+    dict(a=_BP_PILLS, b=_WATER_PILLS,
+         title="A blood-pressure pill with a water pill",
+         plain="Together they can lower blood pressure too much, especially when starting or after a dose change."),
+    dict(a=["NSAID (anti-inflammatory pain reliever)"], b=_BP_PILLS + _WATER_PILLS + ["Potassium-sparing diuretic"],
+         title="A pain reliever with a blood-pressure medicine",
+         plain="Anti-inflammatory pain relievers can make blood-pressure medicines work less well and can strain the kidneys, especially together with a water pill."),
+    dict(a=["Clopidogrel"], b=["Omeprazole", "Esomeprazole"], severity="urgent_seed",
+         title="Clopidogrel with omeprazole or esomeprazole",
+         plain="These stomach-acid medicines can make clopidogrel work less well, which matters for protection against heart attack and stroke."),
+    dict(a=["Levothyroxine"], b=["Proton pump inhibitor", "H2 blocker"],
+         title="Thyroid medicine with a stomach-acid medicine",
+         plain="Stomach-acid medicines can lower how much thyroid medicine your body absorbs. Thyroid blood tests may need checking."),
+    dict(a=["Simvastatin"], b=["Calcium channel blocker"],
+         title="Simvastatin with a calcium channel blocker",
+         plain="Some calcium channel blockers raise the level of simvastatin in the blood, which raises the chance of muscle problems."),
+    dict(a=["Beta blocker"], b=["Calcium channel blocker"],
+         title="A beta blocker with a calcium channel blocker",
+         plain="Together they can slow the heart too much or lower blood pressure too far."),
+]

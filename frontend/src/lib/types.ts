@@ -54,6 +54,15 @@ export type Similarity = {
   drug_names: string[]
 }
 
+export type AlertEvidence = {
+  drug_name: string
+  quote: string
+  section: string
+  source_url: string
+  matched_on: string
+  matched_term: string
+}
+
 export type CombinationAlert = {
   severity: "urgent_seed" | "discuss" | string
   code: string
@@ -64,6 +73,7 @@ export type CombinationAlert = {
   drug_names: string[]
   fields: string[]
   data_label: string
+  evidence?: AlertEvidence[]
 }
 
 export type CompareResponse = {

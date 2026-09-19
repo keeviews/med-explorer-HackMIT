@@ -27,9 +27,12 @@ def _norm(value: str | None) -> str:
     return " ".join((value or "").split()).casefold()
 
 
-def build_insights(details: list[dict[str, Any]]) -> dict[str, Any]:
+def build_insights(
+    details: list[dict[str, Any]], interactions: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
     similarities = _similarities(details)
-    alerts = _duplicate_class_alerts(details) + _pair_alerts(details)
+    alerts = _duplicate_class_alerts(details) + _pair_alerts(details) + _label_alerts(details, interactions or [])
+    alerts.sort(key=lambda row: row["severity"] != "urgent_seed")  # red first (stable sort)
     overlap_summary = None
     if alerts:
         urgent = [row for row in alerts if row["severity"] == "urgent_seed"]
@@ -219,3 +222,42 @@ def _join_names(names: list[str]) -> str:
     if len(names) == 2:
         return f"{names[0]} and {names[1]}"
     return ", ".join(names[:-1]) + f", and {names[-1]}"
+
+
+def _label_alerts(details: list[dict[str, Any]], interactions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """One alert per pair of medicines whose FDA labels mention each other, with the label text as proof."""
+    names = {int(d["id"]): str(d["drug_name"]) for d in details}
+    grouped: dict[frozenset[int], list[dict[str, Any]]] = defaultdict(list)
+    for fact in interactions:
+        grouped[frozenset((fact["drug_id"], fact["other_drug_id"]))].append(fact)
+    alerts: list[dict[str, Any]] = []
+    for pair, rows in grouped.items():
+        # Best evidence first: strong warnings, then a named medicine over a whole class, then the shortest.
+        rows.sort(key=lambda r: (r["severity"] != "urgent_seed", r["matched_on"] != "name", len(r["quote"])))
+        top = rows[0]
+        ids = sorted(pair)
+        alerts.append(
+            {
+                "severity": top["severity"],
+                "code": "label_interaction",
+                "title": top["title"],
+                "detail": top["plain"],
+                "talk_with_clinician": TALK_WITH_CLINICIAN,
+                "drug_ids": ids,
+                "drug_names": [names[i] for i in ids],
+                "fields": ["drug_class"],
+                "data_label": "FDA label",
+                "evidence": [
+                    {
+                        "drug_name": names[row["drug_id"]],
+                        "quote": row["quote"],
+                        "section": row["section"],
+                        "source_url": row["source_url"],
+                        "matched_on": row["matched_on"],
+                        "matched_term": row["matched_term"],
+                    }
+                    for row in rows[:3]
+                ],
+            }
+        )
+    return alerts

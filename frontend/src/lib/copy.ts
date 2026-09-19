@@ -58,6 +58,8 @@ export const COPY = {
     legendSame: "Same",
     legendAsk: "Ask first",
     alertUrgent: "Ask before combining",
+    labelSays: "What the FDA label says",
+    seeLabel: "See the FDA label",
     alertDiscuss: "Worth asking about",
     alertAsk: "Ask your doctor before changing anything.",
     importOk: (mapped: number, extra: number) =>
@@ -146,8 +148,10 @@ export const COPY = {
     notListed: "Not listed",
     legendSame: "Matching fields",
     legendAsk: "Combination flag",
-    alertUrgent: "Sample flag — ask before combining",
-    alertDiscuss: "Sample note — overlap to discuss",
+    alertUrgent: "Flag — ask before combining",
+    labelSays: "What the FDA label says",
+    seeLabel: "See the FDA label",
+    alertDiscuss: "Note — worth discussing",
     alertAsk: "Ask your clinician before changing anything.",
     importOk: (mapped: number, extra: number) =>
       extra

@@ -35,11 +35,39 @@ export function InsightBanners({
             {alert.severity === "urgent_seed" ? copy.alertUrgent : copy.alertDiscuss}
           </p>
           <h3 className="mt-1 font-heading text-lg">
-            {simple ? simpleAlertTitle(alert) : alert.title}
+            {simple && alert.code !== "label_interaction" ? simpleAlertTitle(alert) : alert.title}
           </h3>
           <p className="mt-1 text-sm leading-relaxed">
-            {simple ? simpleAlertDetail(alert) : alert.detail}
+            {simple && alert.code !== "label_interaction" ? simpleAlertDetail(alert) : alert.detail}
           </p>
+          {alert.evidence && alert.evidence.length > 0 ? (
+            simple ? (
+              <a
+                href={alert.evidence[0].source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-block text-sm underline"
+              >
+                {copy.seeLabel}
+              </a>
+            ) : (
+              <div className="mt-3 space-y-2 border-t border-current/20 pt-3">
+                <p className="text-xs font-semibold tracking-wide uppercase">{copy.labelSays}</p>
+                {alert.evidence.map((item) => (
+                  <blockquote key={`${item.drug_name}-${item.quote.slice(0, 40)}`} className="text-sm leading-relaxed">
+                    “{item.quote}”
+                    <footer className="mt-1 text-xs opacity-80">
+                      {item.drug_name} label · {item.section}
+                      {item.matched_on === "class" ? ` · mentions “${item.matched_term}”` : ""} ·{" "}
+                      <a href={item.source_url} target="_blank" rel="noreferrer" className="underline">
+                        View on DailyMed
+                      </a>
+                    </footer>
+                  </blockquote>
+                ))}
+              </div>
+            )
+          ) : null}
           {simple ? (
             <p className="mt-2 text-sm font-medium">{copy.alertAsk}</p>
           ) : (

@@ -7,7 +7,7 @@ import json
 from sqlalchemy.orm import Session, selectinload
 
 from app.disclaimer import DATA_LABEL
-from app.models import Drug, Indication
+from app.models import Drug, Indication, InteractionFact
 
 
 def parse_id_list(raw: str) -> list[int]:
@@ -98,3 +98,29 @@ def load_drugs_by_names(session: Session, names: list[str]) -> tuple[list[Drug],
         else:
             found.append(row)
     return found, missing
+
+
+def load_interaction_facts(session: Session, ids: list[int]) -> list[dict]:
+    """FDA-label sentences that connect any two of the requested medicines."""
+    if len(ids) < 2:
+        return []
+    rows = (
+        session.query(InteractionFact)
+        .filter(InteractionFact.drug_id.in_(ids), InteractionFact.other_drug_id.in_(ids))
+        .all()
+    )
+    return [
+        {
+            "drug_id": row.drug_id,
+            "other_drug_id": row.other_drug_id,
+            "matched_on": row.matched_on,
+            "matched_term": row.matched_term,
+            "section": row.section,
+            "severity": row.severity,
+            "title": row.title,
+            "plain": row.plain,
+            "quote": row.quote,
+            "source_url": row.source_url,
+        }
+        for row in rows
+    ]

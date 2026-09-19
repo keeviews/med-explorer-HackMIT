@@ -42,7 +42,15 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPTS_DIR.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from curated_drugs import CLASSES, COMBINATION_RULES, CONDITIONS, DRUGS, LEGACY_DRUG_ORDER  # noqa: E402
+from curated_drugs import (  # noqa: E402
+    CLASS_LABEL_TERMS,
+    CLASSES,
+    COMBINATION_RULES,
+    CONDITIONS,
+    DRUGS,
+    INTERACTION_NOTES,
+    LEGACY_DRUG_ORDER,
+)
 
 DATA_DIR = ROOT / "data"
 SEED_PATH = DATA_DIR / "seed.json"
@@ -61,6 +69,10 @@ TEXT_SECTIONS = [
     "purpose",
     "adverse_reactions",
     "adverse_reactions_table",
+    "drug_interactions",
+    "contraindications",
+    "ask_doctor_or_pharmacist",
+    "precautions",
     "warnings",
     "warnings_and_cautions",
     "boxed_warning",
@@ -282,6 +294,196 @@ def lint_wording(name: str, texts: list[str], problems: list[str]) -> None:
                 problems.append(f"{name}: wording contains jargon/dev word '{word}': {text!r}")
 
 
+# ---------------------------------------------------------------------------
+# Drug-interaction facts: real sentences from each FDA label
+# ---------------------------------------------------------------------------
+# Only these label sections talk about combining medicines.
+INTERACTION_SECTIONS = {
+    "boxed_warning": "Boxed warning",
+    "contraindications": "Contraindications",
+    "drug_interactions": "Drug interactions",
+    "ask_doctor_or_pharmacist": "Ask a doctor or pharmacist",
+    "do_not_use": "Do not use",
+    "precautions": "Precautions",  # older-format labels keep their interaction details here
+}
+# "( 7.1 )" and "[see Warnings and Precautions (5.1)]" are cross-reference markers; they are removed
+# so the quote reads cleanly. Everything else in a quote is the label's own wording.
+REFERENCE_MARKERS = re.compile(r"\(\s*\d+(?:\.\d+)?(?:\s*,\s*\d+(?:\.\d+)?)*\s*\)|\[\s*see [^\]]*\]", re.I)
+STRONG_WORDS = re.compile(
+    r"\b(contraindicated|should not|must not|do not|avoid|not recommended|life-threatening|fatal)\b", re.I
+)
+MAX_QUOTE_CHARS = 360
+
+
+def clean_label_text(text: str) -> str:
+    text = REFERENCE_MARKERS.sub("", text)
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\s+([.,;:])", r"\1", text)
+    return text.strip()
+
+
+SECTION_HEADING = re.compile(r"^\d+(?:\.\d+)*\s+(?:DRUG INTERACTIONS|CONTRAINDICATIONS)\s+", re.I)
+SUBSECTION_NUMBER = re.compile(r"^\d+(?:\.\d+)+\s+")
+# A sentence is only worth showing if it says what happens (raises a risk, lowers absorption, ...).
+# Bare lists of drug names ("Examples: morphine, ..., tramadol.") carry no information.
+EFFECT_WORDS = re.compile(
+    r"\b(increas\w*|decreas\w*|reduc\w*|rais\w*|elevat\w*|risk|avoid\w*|concomitant|co-?administ\w*|monitor\w*|"
+    r"may|can|could|result\w*|caus\w*|absorption|effect\w*|contraindicated|interact\w*|toxicity|reaction\w*|"
+    r"not recommended|adjust\w*|caution|coma|death|bleeding|syndrome|limit|exceed|should|hyperkalemia)\b",
+    re.I,
+)
+
+
+# Labels also say when a combination was tested and found harmless. That is not a warning, so it is skipped.
+NO_INTERACTION = re.compile(
+    r"\b(no significant|no clinically|no (?:apparent |notable )?(?:effect|change|interaction)|did not|does not|"
+    r"had no|not affect|not alter|not expected|no dose adjustment|not (?:be )?clinically)\b",
+    re.I,
+)
+
+
+def split_sentences(text: str) -> list[str]:
+    pieces = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9(\"\u201c])", text)
+    cleaned = []
+    for piece in pieces:
+        piece = SUBSECTION_NUMBER.sub("", SECTION_HEADING.sub("", piece.strip())).strip()
+        if piece:
+            cleaned.append(piece)
+    return cleaned
+
+
+def term_regex(terms: list[str]) -> re.Pattern | None:
+    terms = [t for t in terms if t]
+    if not terms:
+        return None
+    alternatives = "|".join(re.escape(t) for t in sorted(set(terms), key=len, reverse=True))
+    # Whole words only ("omeprazole" must not match inside "esomeprazole"); plural "NSAIDs" is fine.
+    return re.compile(rf"(?<![A-Za-z0-9])(?:{alternatives})(?:s|es)?(?![A-Za-z0-9])", re.I)
+
+
+def excerpt(sentence: str, match: re.Match) -> str:
+    """A long label sentence is cut down to a window around the match (still a contiguous quote)."""
+    if len(sentence) <= MAX_QUOTE_CHARS:
+        return sentence
+    start = max(0, match.start() - 140)
+    end = min(len(sentence), match.end() + 200)
+    if start > 0:
+        start = sentence.rfind(" ", 0, start) + 1
+    if end < len(sentence):
+        space = sentence.find(" ", end)
+        end = space if space != -1 else len(sentence)
+    return sentence[start:end].strip()
+
+
+def collect_interaction_sections(rx_labels: list[dict], otc_labels: list[dict]) -> list[tuple]:
+    """(section name, cleaned text, label set id, label date) from the best Rx and OTC label."""
+    collected = []
+    # Labels are written in different formats, so read up to a few of the newest of each kind.
+    for labels, how_many in ((rx_labels[:8], 3), (otc_labels[:8], 2)):
+        taken = 0
+        for label in labels:
+            keys = [k for k in INTERACTION_SECTIONS if label["sections"].get(k)]
+            if not keys:
+                continue
+            taken += 1
+            for key in keys:
+                collected.append(
+                    (INTERACTION_SECTIONS[key], clean_label_text(label["sections"][key]), label["set_id"], label["effective_time"])
+                )
+            if taken >= how_many:
+                break
+    return collected
+
+
+def _in_rule(names: list[str], drug_name: str, drug_class: str) -> bool:
+    return drug_name in names or drug_class in names
+
+
+def plain_note(a: dict, b: dict, severity: str) -> tuple[str, str, str]:
+    """Plain-language title and explanation, and the severity (a rule may raise it, never lower it)."""
+    for rule in INTERACTION_NOTES:
+        forward = _in_rule(rule["a"], a["name"], a["class"]) and _in_rule(rule["b"], b["name"], b["class"])
+        backward = _in_rule(rule["a"], b["name"], b["class"]) and _in_rule(rule["b"], a["name"], a["class"])
+        if forward or backward:
+            return rule["title"], rule["plain"], rule.get("severity") or severity
+    if severity == "urgent_seed":
+        return (
+            f"{a['name']} and {b['name']}: strong warning on the FDA label",
+            f"The FDA label for {a['name']} has a strong warning that involves {b['name']}. "
+            "Ask a pharmacist or clinician before taking both.",
+            severity,
+        )
+    return (
+        f"{a['name']} and {b['name']}: mentioned together on the FDA label",
+        f"The FDA label for {a['name']} mentions {b['name']} in its interaction information. "
+        "Ask a pharmacist or clinician whether they are safe together.",
+        severity,
+    )
+
+
+def build_interactions(docs: dict[str, dict], order: list[str]) -> list[dict]:
+    """For every ordered pair (A, B): label sentences in A's label that mention B or B's class."""
+    matchers = {}
+    for name, doc in docs.items():
+        generic = re.sub(r"\s*\(.*?\)", "", name).lower()
+        brands = [b for b in doc["brands"] if re.fullmatch(r"[A-Za-z0-9-]{5,14}", b) and b.lower() != generic]
+        matchers[name] = (term_regex([generic, *brands]), term_regex(CLASS_LABEL_TERMS.get(doc["class"], [])))
+
+    facts: list[dict] = []
+    for a in order:
+        for b in order:
+            if a == b:
+                continue
+            name_re, class_re = matchers[b]
+            same_class = docs[a]["class"] == docs[b]["class"]  # the duplicate-class flag already covers this
+            found = []
+            for section, text, set_id, effective in docs[a]["sections"]:
+                for sentence in split_sentences(text):
+                    match = name_re.search(sentence) if name_re else None
+                    kind = "name"
+                    if not match and class_re and not same_class:
+                        match, kind = class_re.search(sentence), "class"
+                    if not match:
+                        continue
+                    quote = excerpt(sentence, match)
+                    assert quote in text, f"quote is not a contiguous piece of the label: {quote!r}"
+                    strong_section = section in ("Boxed warning", "Contraindications")
+                    # Judge the text actually shown: it must say what happens, and must not be a bare list.
+                    if not (strong_section or EFFECT_WORDS.search(quote)) or quote.count(",") > 8:
+                        continue
+                    if NO_INTERACTION.search(quote):
+                        continue
+                    strong = strong_section or STRONG_WORDS.search(sentence)
+                    severity = "urgent_seed" if strong else "discuss"
+                    title, plain, severity = plain_note(
+                        {"name": a, "class": docs[a]["class"]}, {"name": b, "class": docs[b]["class"]}, severity
+                    )
+                    found.append((severity != "urgent_seed", kind != "name", len(quote), quote, kind,
+                                  match.group(0), section, severity, set_id, effective, title, plain))
+            found.sort()
+            seen = set()
+            for _s, _c, _l, quote, kind, term, section, severity, set_id, effective, title, plain in found:
+                if quote in seen or len(seen) >= 2:
+                    continue
+                seen.add(quote)
+                facts.append(
+                    {
+                        "drug": a,
+                        "other": b,
+                        "matched_on": kind,
+                        "matched_term": term,
+                        "section": section,
+                        "severity": severity,
+                        "title": title,
+                        "plain": plain,
+                        "quote": quote,
+                        "source": f"openfda:label:{set_id}:{iso_date(effective)}",
+                        "source_url": f"{DAILYMED_URL}{set_id}",
+                    }
+                )
+    return facts
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--offline", action="store_true", help="use only the local cache")
@@ -300,6 +502,7 @@ def main() -> int:
             previous_ids = {}
 
     drugs_out: list[dict] = []
+    docs: dict[str, dict] = {}
     indications_out: list[dict] = []
     problems: list[str] = []
     notes: list[str] = []
@@ -393,6 +596,11 @@ def main() -> int:
 
         source = f"openfda:label:{primary['set_id']}:{iso_date(primary['effective_time'])}"
         source_url = f"{DAILYMED_URL}{primary['set_id']}"
+        docs[name] = {
+            "class": drug_class,
+            "brands": sorted({brand for label in sample for brand in label["brand_name"]}),
+            "sections": collect_interaction_sections(rx_labels, otc_labels),
+        }
         for cond in drug["conds"]:
             cond_name, cond_text = cond if isinstance(cond, tuple) else (cond, condition_defaults.get(cond))
             if cond_name not in condition_defaults:
@@ -414,6 +622,9 @@ def main() -> int:
     # Original drugs first, in their original order, so their database ids never change.
     legacy_rank = {name: position for position, name in enumerate(LEGACY_DRUG_ORDER)}
     drugs_out.sort(key=lambda row: legacy_rank.get(row["name"], len(legacy_rank)))
+
+    interactions_out = build_interactions(docs, [row["name"] for row in drugs_out])
+    print(f"Interaction facts found in FDA labels: {len(interactions_out)}")
 
     print()
     print(f"Drugs built: {len(drugs_out)} of {len(DRUGS)}")
@@ -447,6 +658,7 @@ def main() -> int:
         ],
         "drugs": drugs_out,
         "indications": indications_out,
+        "interactions": interactions_out,
     }
     SEED_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"\nWrote {SEED_PATH} ({len(drugs_out)} drugs, {len(indications_out)} indications)")
