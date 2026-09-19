@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 from app.disclaimer import (
     COMPARE_DATA_NOTICE,
+    DATA_LABEL,
     COMPARE_NOTE,
     DATA_NOTICE,
     DISCLAIMER,
@@ -17,7 +18,7 @@ class Suggestion(BaseModel):
     indication_snippet: str
     matched_condition: str | None
     source: str
-    data_label: str = "Illustrative seed data"
+    data_label: str = DATA_LABEL
     score: float
 
 
@@ -58,7 +59,7 @@ class DrugDetail(BaseModel):
     typical_use_note: str | None
     monitoring_note: str | None
     linked_conditions: list[str] = Field(default_factory=list)
-    data_label: str = "Illustrative seed data"
+    data_label: str = DATA_LABEL
 
 
 class Similarity(BaseModel):
@@ -77,7 +78,7 @@ class CombinationAlert(BaseModel):
     drug_ids: list[int]
     drug_names: list[str]
     fields: list[str] = Field(default_factory=list)
-    data_label: str = "Illustrative seed data"
+    data_label: str = "General overlap rule"
 
 
 class DrugDetailResponse(BaseModel):
@@ -128,7 +129,7 @@ class MyChartStatusResponse(BaseModel):
 class FhirImportResponse(BaseModel):
     disclaimer: str = DISCLAIMER
     data_notice: str = (
-        "Imported names are matched to illustrative seed drugs by RxNorm id or "
+        "Imported names are matched to the medicines in this app by RxNorm id or "
         "name. This is not a live chart unless a SMART on FHIR session succeeded. "
         "Unmapped medicines stay visible as notes but cannot enter compare."
     )

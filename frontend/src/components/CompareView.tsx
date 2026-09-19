@@ -53,6 +53,7 @@ function cellValue(drug: DrugDetail, key: RowKey, notListed: string, simple: boo
     if (key === "rx_otc" && simple) {
       if (value === "Rx") return "Prescription"
       if (value === "OTC") return "Store-bought"
+      if (value.startsWith("OTC or Rx")) return "Store-bought or prescription (depends on the product)"
     }
     if (key === "route" && simple && value === "oral") return "By mouth"
     return plainSeedNote(value, simple)

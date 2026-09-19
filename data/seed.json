@@ -1,11 +1,17 @@
 {
   "meta": {
-    "label": "Illustrative seed data for development",
-    "not": "clinical guidelines, a complete DrugCentral dump, or prescribing advice",
-    "intended_next_source": "DrugCentral omop_relationship indications + RxNorm identifiers; later SIDER/OpenFDA for labeled effects"
+    "label": "FDA drug label data (openFDA), with plain-language wording written by the team",
+    "retrieved": "2026-09-19",
+    "sources": {
+      "labels": "openFDA drug label API — https://open.fda.gov/apis/drug/label/",
+      "ingredient_ids": "NLM RxNav RxNorm lookup",
+      "label_pages": "DailyMed (linked from each indication's source_url)"
+    },
+    "not": "clinical guidelines, a complete list of side effects or interactions, or prescribing advice",
+    "how_it_is_built": "python scripts/build_seed_from_openfda.py"
   },
   "combination_rules": {
-    "label": "Illustrative seed flags for development — not a complete interaction checker, DDI database, or deprescribing engine",
+    "label": "General overlap flags — not a complete interaction checker, drug-interaction database, or advice about which medicines to stop",
     "duplicate_class_urgent": [
       "ACE inhibitor",
       "Angiotensin II receptor blocker",
@@ -22,23 +28,37 @@
       "GLP-1 receptor agonist",
       "Sulfonylurea",
       "DPP-4 inhibitor",
-      "Biguanide"
+      "Biguanide",
+      "Statin (lowers cholesterol)",
+      "SSRI antidepressant",
+      "NSAID (anti-inflammatory pain reliever)",
+      "Benzodiazepine (calming medicine)",
+      "Blood thinner (anticoagulant)"
     ],
     "pairs": [
       {
-        "classes": ["ACE inhibitor", "Angiotensin II receptor blocker"],
+        "classes": [
+          "ACE inhibitor",
+          "Angiotensin II receptor blocker"
+        ],
         "severity": "urgent_seed",
         "title": "ACE inhibitor and ARB on the same list",
-        "detail": "Using an ACE inhibitor together with an ARB is a combination clinicians often review closely. This seed flag is not a complete interaction check and is not an order to stop either medicine."
+        "detail": "Using an ACE inhibitor together with an ARB is a combination clinicians often review closely. This flag is not a complete interaction check and is not an order to stop either medicine."
       },
       {
-        "classes": ["Proton pump inhibitor", "H2 blocker"],
+        "classes": [
+          "Proton pump inhibitor",
+          "H2 blocker"
+        ],
         "severity": "discuss",
         "title": "Two acid-reducing classes on the same list",
         "detail": "A PPI and an H2 blocker sometimes appear together, and sometimes that overlap is worth a visit question. This is a discussion flag, not advice to drop one."
       },
       {
-        "classes": ["Triptan", "CGRP receptor antagonist (gepant)"],
+        "classes": [
+          "Triptan",
+          "CGRP receptor antagonist (gepant)"
+        ],
         "severity": "discuss",
         "title": "More than one as-needed migraine class",
         "detail": "A triptan and a gepant on the same list is something people often double-check with a clinician (timing, how often each is used). This app cannot say they must or must not be combined."
@@ -48,7 +68,13 @@
   "conditions": [
     {
       "name": "Hypertension",
-      "aliases": ["high blood pressure", "htn", "essential hypertension", "hbp"]
+      "aliases": [
+        "high blood pressure",
+        "htn",
+        "essential hypertension",
+        "hbp",
+        "blood pressure"
+      ]
     },
     {
       "name": "Type 2 diabetes mellitus",
@@ -57,7 +83,9 @@
         "t2dm",
         "type II diabetes",
         "niddm",
-        "diabetes mellitus type 2"
+        "diabetes mellitus type 2",
+        "diabetes",
+        "high blood sugar"
       ]
     },
     {
@@ -66,16 +94,218 @@
         "hay fever",
         "seasonal allergies",
         "allergic rhinitis",
-        "pollen allergy"
+        "pollen allergy",
+        "allergies",
+        "itchy eyes",
+        "sneezing"
       ]
     },
     {
       "name": "Gastroesophageal reflux disease",
-      "aliases": ["gerd", "acid reflux", "gord", "reflux", "heartburn"]
+      "aliases": [
+        "gerd",
+        "acid reflux",
+        "gord",
+        "reflux",
+        "heartburn"
+      ]
     },
     {
       "name": "Migraine",
-      "aliases": ["migraine headache", "migraines", "migraine disorder"]
+      "aliases": [
+        "migraine headache",
+        "migraines",
+        "migraine disorder"
+      ]
+    },
+    {
+      "name": "High cholesterol",
+      "aliases": [
+        "cholesterol",
+        "hyperlipidemia",
+        "dyslipidemia",
+        "high ldl",
+        "lipids"
+      ]
+    },
+    {
+      "name": "Depression",
+      "aliases": [
+        "major depressive disorder",
+        "mdd",
+        "low mood",
+        "feeling depressed"
+      ]
+    },
+    {
+      "name": "Anxiety",
+      "aliases": [
+        "generalized anxiety disorder",
+        "gad",
+        "anxiety disorder",
+        "panic disorder",
+        "panic attacks"
+      ]
+    },
+    {
+      "name": "Asthma",
+      "aliases": [
+        "wheezing",
+        "asthma attacks",
+        "reactive airway"
+      ]
+    },
+    {
+      "name": "Pain and fever",
+      "aliases": [
+        "pain",
+        "headache",
+        "fever",
+        "aches",
+        "minor aches",
+        "body aches",
+        "toothache",
+        "menstrual cramps"
+      ]
+    },
+    {
+      "name": "Arthritis and inflammation",
+      "aliases": [
+        "arthritis",
+        "osteoarthritis",
+        "rheumatoid arthritis",
+        "joint pain",
+        "inflammation",
+        "sore joints"
+      ]
+    },
+    {
+      "name": "Moderate to severe pain",
+      "aliases": [
+        "severe pain",
+        "strong pain",
+        "surgery pain",
+        "opioid"
+      ]
+    },
+    {
+      "name": "Bacterial infections",
+      "aliases": [
+        "infection",
+        "antibiotic",
+        "strep throat",
+        "uti",
+        "urinary tract infection",
+        "sinus infection",
+        "bronchitis",
+        "pneumonia"
+      ]
+    },
+    {
+      "name": "Underactive thyroid",
+      "aliases": [
+        "hypothyroidism",
+        "thyroid",
+        "low thyroid"
+      ]
+    },
+    {
+      "name": "Trouble sleeping",
+      "aliases": [
+        "insomnia",
+        "sleep problems",
+        "cant sleep",
+        "sleeplessness"
+      ]
+    },
+    {
+      "name": "Blood clots and stroke prevention",
+      "aliases": [
+        "blood thinner",
+        "atrial fibrillation",
+        "afib",
+        "dvt",
+        "blood clot",
+        "stroke",
+        "heart attack prevention",
+        "anticoagulant"
+      ]
+    },
+    {
+      "name": "Stuffy nose and congestion",
+      "aliases": [
+        "nasal congestion",
+        "stuffy nose",
+        "congestion",
+        "cold",
+        "sinus pressure",
+        "blocked nose"
+      ]
+    },
+    {
+      "name": "Nausea and vomiting",
+      "aliases": [
+        "nausea",
+        "vomiting",
+        "throwing up",
+        "upset stomach"
+      ]
+    },
+    {
+      "name": "Diarrhea",
+      "aliases": [
+        "loose stools",
+        "travelers diarrhea"
+      ]
+    },
+    {
+      "name": "Constipation",
+      "aliases": [
+        "hard stools",
+        "irregular bowel"
+      ]
+    },
+    {
+      "name": "Swelling from fluid buildup",
+      "aliases": [
+        "edema",
+        "fluid retention",
+        "water retention",
+        "swollen legs"
+      ]
+    },
+    {
+      "name": "Erectile dysfunction",
+      "aliases": [
+        "ed",
+        "impotence"
+      ]
+    },
+    {
+      "name": "Gout",
+      "aliases": [
+        "gout attacks",
+        "high uric acid",
+        "uric acid"
+      ]
+    },
+    {
+      "name": "Nerve pain",
+      "aliases": [
+        "neuropathy",
+        "nerve pain",
+        "postherpetic neuralgia",
+        "shingles pain"
+      ]
+    },
+    {
+      "name": "Muscle spasms",
+      "aliases": [
+        "muscle spasm",
+        "muscle pain",
+        "back spasm",
+        "muscle strain"
+      ]
     }
   ],
   "drugs": [
@@ -85,9 +315,13 @@
       "drug_class": "ACE inhibitor",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["dry cough", "dizziness", "high potassium"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Kidney function, potassium, and cough are commonly discussed with a clinician."
+      "common_side_effects": [
+        "dry cough",
+        "dizziness",
+        "high potassium"
+      ],
+      "typical_use_note": "Once-daily tablet. Relaxes blood vessels so blood pressure comes down.",
+      "monitoring_note": "Kidney and potassium blood tests. A dry cough that does not go away."
     },
     {
       "name": "Amlodipine",
@@ -95,9 +329,13 @@
       "drug_class": "Calcium channel blocker",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["ankle swelling", "flushing", "dizziness"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Swelling and home blood-pressure notes are commonly discussed with a clinician."
+      "common_side_effects": [
+        "ankle swelling",
+        "flushing",
+        "dizziness"
+      ],
+      "typical_use_note": "Once-daily tablet. Relaxes blood vessels and eases the workload on the heart.",
+      "monitoring_note": "Ankle swelling. Blood pressure readings at home."
     },
     {
       "name": "Hydrochlorothiazide",
@@ -105,9 +343,13 @@
       "drug_class": "Thiazide diuretic",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["more urination", "low potassium", "sun sensitivity"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Electrolytes, dehydration, and sun protection are commonly discussed with a clinician."
+      "common_side_effects": [
+        "dizziness",
+        "low potassium",
+        "sun sensitivity"
+      ],
+      "typical_use_note": "Once-daily tablet. A water pill that helps the body get rid of extra salt and water.",
+      "monitoring_note": "Blood tests for body salts (electrolytes). Staying hydrated and using sun protection."
     },
     {
       "name": "Losartan",
@@ -115,9 +357,13 @@
       "drug_class": "Angiotensin II receptor blocker",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["dizziness", "high potassium", "fatigue"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Kidney function and potassium are commonly discussed with a clinician."
+      "common_side_effects": [
+        "dizziness",
+        "high potassium",
+        "fatigue"
+      ],
+      "typical_use_note": "Once-daily tablet. Relaxes blood vessels so blood pressure comes down.",
+      "monitoring_note": "Kidney and potassium blood tests."
     },
     {
       "name": "Metoprolol",
@@ -125,9 +371,13 @@
       "drug_class": "Beta blocker",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["fatigue", "slow heart rate", "cold hands or feet"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Heart rate, energy, and asthma history are commonly discussed with a clinician."
+      "common_side_effects": [
+        "fatigue",
+        "slow heart rate",
+        "cold hands or feet"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day. Slows the heart and lowers blood pressure.",
+      "monitoring_note": "Heart rate and energy level. Tell your clinician if you have asthma."
     },
     {
       "name": "Propranolol",
@@ -135,9 +385,13 @@
       "drug_class": "Beta blocker",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["fatigue", "slow heart rate", "vivid dreams"],
-      "typical_use_note": "Daily oral tablet in this seed set; also appears with migraine-prevention notes.",
-      "monitoring_note": "Heart rate, asthma history, and energy changes are commonly discussed with a clinician."
+      "common_side_effects": [
+        "fatigue",
+        "slow heart rate",
+        "vivid dreams"
+      ],
+      "typical_use_note": "Tablet or capsule taken once or a few times a day. Slows the heart and lowers blood pressure.",
+      "monitoring_note": "Heart rate and energy level. Tell your clinician if you have asthma."
     },
     {
       "name": "Metformin",
@@ -145,9 +399,13 @@
       "drug_class": "Biguanide",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["stomach upset", "diarrhea", "metallic taste"],
-      "typical_use_note": "Daily oral tablet in this seed set, often with meals.",
-      "monitoring_note": "Kidney function and stomach tolerance are commonly discussed with a clinician."
+      "common_side_effects": [
+        "stomach upset",
+        "diarrhea",
+        "metallic taste"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day with meals. Lowers blood sugar mainly by reducing the sugar the liver releases.",
+      "monitoring_note": "Kidney function and how your stomach handles it."
     },
     {
       "name": "Empagliflozin",
@@ -155,9 +413,13 @@
       "drug_class": "SGLT2 inhibitor",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["genital yeast infections", "more urination", "dehydration"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Hydration, genital infections, and ketone symptoms are commonly discussed with a clinician."
+      "common_side_effects": [
+        "genital yeast infections",
+        "more urination",
+        "dehydration"
+      ],
+      "typical_use_note": "Once-daily tablet. Helps the kidneys remove extra sugar through urine.",
+      "monitoring_note": "Staying hydrated. Genital infections. Nausea, vomiting or stomach pain that could signal ketones."
     },
     {
       "name": "Semaglutide",
@@ -165,9 +427,13 @@
       "drug_class": "GLP-1 receptor agonist",
       "route": "injection or oral (product-dependent)",
       "rx_otc": "Rx",
-      "common_side_effects": ["nausea", "vomiting", "decreased appetite"],
-      "typical_use_note": "Weekly injection is common in seed notes; an oral form also exists.",
-      "monitoring_note": "Stomach symptoms, nutrition, and injection technique are commonly discussed with a clinician."
+      "common_side_effects": [
+        "nausea",
+        "vomiting",
+        "decreased appetite"
+      ],
+      "typical_use_note": "Usually a once-weekly injection; a daily tablet form also exists. Acts like a gut hormone that raises insulin after meals and lowers appetite.",
+      "monitoring_note": "Stomach symptoms, eating enough, and how to use the injection pen."
     },
     {
       "name": "Glipizide",
@@ -175,9 +441,13 @@
       "drug_class": "Sulfonylurea",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["low blood sugar", "weight gain", "dizziness"],
-      "typical_use_note": "Daily oral tablet in this seed set, usually with a meal.",
-      "monitoring_note": "Low-blood-sugar symptoms and meal timing are commonly discussed with a clinician."
+      "common_side_effects": [
+        "low blood sugar",
+        "dizziness",
+        "nausea"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day, usually before a meal. Helps the pancreas release more insulin.",
+      "monitoring_note": "Signs of low blood sugar and keeping regular meals."
     },
     {
       "name": "Sitagliptin",
@@ -185,19 +455,27 @@
       "drug_class": "DPP-4 inhibitor",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["stuffy nose", "headache", "joint pain"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Unusual abdominal pain and joint symptoms are commonly discussed with a clinician."
+      "common_side_effects": [
+        "stuffy nose",
+        "headache",
+        "joint pain"
+      ],
+      "typical_use_note": "Once-daily tablet. Helps the body make more insulin after meals.",
+      "monitoring_note": "Unusual stomach pain and new joint pain."
     },
     {
       "name": "Cetirizine",
       "rxnorm_id": "20610",
       "drug_class": "Second-generation antihistamine",
       "route": "oral",
-      "rx_otc": "OTC",
-      "common_side_effects": ["drowsiness", "dry mouth", "fatigue"],
-      "typical_use_note": "Once-daily oral tablet in this seed set.",
-      "monitoring_note": "Daytime sleepiness and other allergy medicines are commonly discussed with a clinician."
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "drowsiness",
+        "dry mouth",
+        "fatigue"
+      ],
+      "typical_use_note": "Once-daily tablet. Blocks histamine to ease sneezing, itching and a runny nose, usually with less drowsiness than older allergy pills.",
+      "monitoring_note": "Whether it makes you sleepy, and other allergy medicines you take."
     },
     {
       "name": "Loratadine",
@@ -205,19 +483,26 @@
       "drug_class": "Second-generation antihistamine",
       "route": "oral",
       "rx_otc": "OTC",
-      "common_side_effects": ["headache", "dry mouth", "occasional drowsiness"],
-      "typical_use_note": "Once-daily oral tablet in this seed set.",
-      "monitoring_note": "Whether it causes drowsiness for that person is commonly discussed with a clinician."
+      "common_side_effects": [
+        "drowsiness",
+        "allergic reaction (rare)"
+      ],
+      "typical_use_note": "Once-daily tablet. Blocks histamine to ease sneezing, itching and a runny nose, usually with less drowsiness than older allergy pills.",
+      "monitoring_note": "Drowsiness is most likely if you take more than the label says. Any rash, swelling or trouble breathing needs medical help right away."
     },
     {
       "name": "Fluticasone (nasal)",
       "rxnorm_id": "41126",
       "drug_class": "Intranasal corticosteroid",
-      "route": "nasal",
-      "rx_otc": "OTC or Rx (product-dependent)",
-      "common_side_effects": ["nosebleeds", "nasal irritation", "sore throat"],
-      "typical_use_note": "Daily nasal spray in this seed set.",
-      "monitoring_note": "Spray technique and nosebleeds are commonly discussed with a clinician."
+      "route": "nasal spray",
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "nosebleeds",
+        "nasal irritation",
+        "sore throat"
+      ],
+      "typical_use_note": "Daily nasal spray. Calms swelling inside the nose.",
+      "monitoring_note": "Spray technique and nosebleeds."
     },
     {
       "name": "Montelukast",
@@ -225,19 +510,27 @@
       "drug_class": "Leukotriene receptor antagonist",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["headache", "stomach pain", "mood or behavior changes (labeled warning topic)"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Mood or behavior changes are a labeled warning topic to raise with a clinician."
+      "common_side_effects": [
+        "headache",
+        "stomach pain",
+        "mood or behavior changes"
+      ],
+      "typical_use_note": "Once-daily tablet, usually taken in the evening. Blocks a body chemical that causes airway swelling and allergy symptoms.",
+      "monitoring_note": "Any mood or behavior changes, such as agitation or trouble sleeping. Tell your clinician right away."
     },
     {
       "name": "Omeprazole",
       "rxnorm_id": "7646",
       "drug_class": "Proton pump inhibitor",
       "route": "oral",
-      "rx_otc": "OTC or Rx (strength-dependent)",
-      "common_side_effects": ["headache", "diarrhea", "abdominal pain"],
-      "typical_use_note": "Daily oral capsule in this seed set, often before a meal.",
-      "monitoring_note": "How long to stay on a PPI is commonly discussed with a clinician."
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "headache",
+        "diarrhea",
+        "abdominal pain"
+      ],
+      "typical_use_note": "Once-daily capsule, often taken before a meal. Lowers the amount of acid the stomach makes.",
+      "monitoring_note": "How long you need to stay on it and other acid medicines you take."
     },
     {
       "name": "Pantoprazole",
@@ -245,29 +538,41 @@
       "drug_class": "Proton pump inhibitor",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["headache", "diarrhea", "nausea"],
-      "typical_use_note": "Daily oral tablet in this seed set.",
-      "monitoring_note": "Duration of use and other acid medicines are commonly discussed with a clinician."
+      "common_side_effects": [
+        "headache",
+        "diarrhea",
+        "nausea"
+      ],
+      "typical_use_note": "Once-daily tablet. Lowers the amount of acid the stomach makes.",
+      "monitoring_note": "How long you need to stay on it and other acid medicines you take."
     },
     {
       "name": "Famotidine",
       "rxnorm_id": "4278",
       "drug_class": "H2 blocker",
       "route": "oral",
-      "rx_otc": "OTC or Rx (strength-dependent)",
-      "common_side_effects": ["headache", "constipation", "diarrhea"],
-      "typical_use_note": "Oral tablet in this seed set; sometimes used as-needed.",
-      "monitoring_note": "Timing with meals and other medicines is commonly discussed with a clinician."
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "headache",
+        "constipation",
+        "diarrhea"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day, or as needed. Lowers the amount of acid the stomach makes.",
+      "monitoring_note": "Timing with meals and other medicines."
     },
     {
       "name": "Esomeprazole",
       "rxnorm_id": "283742",
       "drug_class": "Proton pump inhibitor",
       "route": "oral",
-      "rx_otc": "OTC or Rx (strength-dependent)",
-      "common_side_effects": ["headache", "diarrhea", "dry mouth"],
-      "typical_use_note": "Daily oral capsule in this seed set.",
-      "monitoring_note": "Duration of use is commonly discussed with a clinician."
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "headache",
+        "diarrhea",
+        "dry mouth"
+      ],
+      "typical_use_note": "Once-daily capsule. Lowers the amount of acid the stomach makes.",
+      "monitoring_note": "How long you need to stay on it."
     },
     {
       "name": "Sumatriptan",
@@ -275,9 +580,13 @@
       "drug_class": "Triptan",
       "route": "oral (other forms exist)",
       "rx_otc": "Rx",
-      "common_side_effects": ["chest tightness", "tingling", "drowsiness"],
-      "typical_use_note": "As-needed at migraine onset in this seed set.",
-      "monitoring_note": "Heart-disease history and how often it is used are commonly discussed with a clinician."
+      "common_side_effects": [
+        "chest tightness",
+        "tingling",
+        "dizziness"
+      ],
+      "typical_use_note": "Taken as needed at the start of a migraine. Narrows swollen blood vessels in the head and blocks pain signals during a migraine.",
+      "monitoring_note": "Any history of heart disease and how often you use it."
     },
     {
       "name": "Rizatriptan",
@@ -285,175 +594,1502 @@
       "drug_class": "Triptan",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["drowsiness", "dizziness", "chest tightness"],
-      "typical_use_note": "As-needed at migraine onset in this seed set.",
-      "monitoring_note": "Heart-disease history and other migraine medicines are commonly discussed with a clinician."
+      "common_side_effects": [
+        "drowsiness",
+        "dizziness",
+        "chest tightness"
+      ],
+      "typical_use_note": "Taken as needed at the start of a migraine. Narrows swollen blood vessels in the head and blocks pain signals during a migraine.",
+      "monitoring_note": "Any history of heart disease and how often you use it."
     },
     {
       "name": "Topiramate",
-      "rxnorm_id": "38400",
-      "drug_class": "Anticonvulsant (migraine-prevention note in seed)",
+      "rxnorm_id": "38404",
+      "drug_class": "Anticonvulsant (seizure medicine also used to prevent migraine)",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["tingling", "word-finding difficulty", "appetite change"],
-      "typical_use_note": "Daily prevention tablet in this seed set — not an as-needed attack medicine.",
-      "monitoring_note": "Mood, hydration, kidney stones, and pregnancy plans are commonly discussed with a clinician."
+      "common_side_effects": [
+        "tingling",
+        "word-finding difficulty",
+        "appetite change"
+      ],
+      "typical_use_note": "Daily tablet for prevention. It is not an as-needed medicine for a migraine attack. Calms overactive nerve signals in the brain.",
+      "monitoring_note": "Mood, staying hydrated, kidney stones, and pregnancy plans."
     },
     {
       "name": "Ubrogepant",
-      "rxnorm_id": "2261783",
+      "rxnorm_id": "2268216",
       "drug_class": "CGRP receptor antagonist (gepant)",
       "route": "oral",
       "rx_otc": "Rx",
-      "common_side_effects": ["nausea", "sleepiness", "dry mouth"],
-      "typical_use_note": "As-needed at migraine onset in this seed set.",
-      "monitoring_note": "How it fits with other migraine medicines is commonly discussed with a clinician."
+      "common_side_effects": [
+        "nausea",
+        "sleepiness",
+        "dry mouth"
+      ],
+      "typical_use_note": "Taken as needed at the start of a migraine. Blocks a protein that plays a role in migraine pain.",
+      "monitoring_note": "How it fits with your other migraine medicines."
+    },
+    {
+      "name": "Enalapril",
+      "rxnorm_id": "3827",
+      "drug_class": "ACE inhibitor",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "dry cough",
+        "dizziness",
+        "high potassium"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day. Relaxes blood vessels so blood pressure comes down.",
+      "monitoring_note": "Kidney and potassium blood tests. A dry cough that does not go away."
+    },
+    {
+      "name": "Benazepril",
+      "rxnorm_id": "18867",
+      "drug_class": "ACE inhibitor",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "dry cough",
+        "dizziness",
+        "high potassium"
+      ],
+      "typical_use_note": "Once-daily tablet. Relaxes blood vessels so blood pressure comes down.",
+      "monitoring_note": "Kidney and potassium blood tests. A dry cough that does not go away."
+    },
+    {
+      "name": "Diltiazem",
+      "rxnorm_id": "3443",
+      "drug_class": "Calcium channel blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "ankle swelling",
+        "headache",
+        "dizziness"
+      ],
+      "typical_use_note": "Tablet or capsule taken once or several times a day, depending on the type. Relaxes blood vessels and eases the workload on the heart.",
+      "monitoring_note": "Ankle swelling. Blood pressure readings at home."
+    },
+    {
+      "name": "Chlorthalidone",
+      "rxnorm_id": "2409",
+      "drug_class": "Thiazide diuretic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "more urination",
+        "low potassium",
+        "sun sensitivity"
+      ],
+      "typical_use_note": "Once-daily tablet. A water pill that helps the body get rid of extra salt and water.",
+      "monitoring_note": "Blood tests for body salts (electrolytes). Staying hydrated and using sun protection."
+    },
+    {
+      "name": "Valsartan",
+      "rxnorm_id": "69749",
+      "drug_class": "Angiotensin II receptor blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "dizziness",
+        "high potassium",
+        "fatigue"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day. Relaxes blood vessels so blood pressure comes down.",
+      "monitoring_note": "Kidney and potassium blood tests."
+    },
+    {
+      "name": "Atenolol",
+      "rxnorm_id": "1202",
+      "drug_class": "Beta blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "fatigue",
+        "slow heart rate",
+        "cold hands or feet"
+      ],
+      "typical_use_note": "Once-daily tablet. Slows the heart and lowers blood pressure.",
+      "monitoring_note": "Heart rate and energy level. Tell your clinician if you have asthma."
+    },
+    {
+      "name": "Carvedilol",
+      "rxnorm_id": "20352",
+      "drug_class": "Beta blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "dizziness",
+        "fatigue",
+        "slow heart rate"
+      ],
+      "typical_use_note": "Tablet taken twice a day with food. Slows the heart and lowers blood pressure.",
+      "monitoring_note": "Heart rate and energy level. Tell your clinician if you have asthma."
+    },
+    {
+      "name": "Furosemide",
+      "rxnorm_id": "4603",
+      "drug_class": "Loop diuretic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "more urination",
+        "dizziness",
+        "low potassium"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day. A strong water pill that removes extra fluid through urine.",
+      "monitoring_note": "Blood tests for body salts and kidneys. Signs of dehydration."
+    },
+    {
+      "name": "Spironolactone",
+      "rxnorm_id": "9997",
+      "drug_class": "Potassium-sparing diuretic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "high potassium",
+        "breast tenderness",
+        "dizziness"
+      ],
+      "typical_use_note": "Once-daily tablet. A water pill that keeps potassium in the body.",
+      "monitoring_note": "Potassium and kidney blood tests."
+    },
+    {
+      "name": "Atorvastatin",
+      "rxnorm_id": "83367",
+      "drug_class": "Statin (lowers cholesterol)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "joint or muscle pain",
+        "diarrhea",
+        "cold-like symptoms"
+      ],
+      "typical_use_note": "Once-daily tablet. Slows how much cholesterol the liver makes.",
+      "monitoring_note": "Muscle pain or weakness that is unexplained. Liver blood tests when your clinician asks for them."
+    },
+    {
+      "name": "Rosuvastatin",
+      "rxnorm_id": "301542",
+      "drug_class": "Statin (lowers cholesterol)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "muscle aches",
+        "headache",
+        "stomach upset"
+      ],
+      "typical_use_note": "Once-daily tablet. Slows how much cholesterol the liver makes.",
+      "monitoring_note": "Muscle pain or weakness that is unexplained. Liver blood tests when your clinician asks for them."
+    },
+    {
+      "name": "Simvastatin",
+      "rxnorm_id": "36567",
+      "drug_class": "Statin (lowers cholesterol)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "muscle aches",
+        "headache",
+        "stomach upset"
+      ],
+      "typical_use_note": "Once-daily tablet, usually taken in the evening. Slows how much cholesterol the liver makes.",
+      "monitoring_note": "Muscle pain or weakness that is unexplained. Liver blood tests when your clinician asks for them."
+    },
+    {
+      "name": "Pravastatin",
+      "rxnorm_id": "42463",
+      "drug_class": "Statin (lowers cholesterol)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "muscle aches",
+        "headache",
+        "stomach upset"
+      ],
+      "typical_use_note": "Once-daily tablet. Slows how much cholesterol the liver makes.",
+      "monitoring_note": "Muscle pain or weakness that is unexplained. Liver blood tests when your clinician asks for them."
+    },
+    {
+      "name": "Ezetimibe",
+      "rxnorm_id": "341248",
+      "drug_class": "Cholesterol absorption blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "diarrhea",
+        "tiredness",
+        "joint pain"
+      ],
+      "typical_use_note": "Once-daily tablet. Blocks some of the cholesterol in food from being absorbed.",
+      "monitoring_note": "Muscle pain (especially if taken with a statin). Liver blood tests."
+    },
+    {
+      "name": "Glimepiride",
+      "rxnorm_id": "25789",
+      "drug_class": "Sulfonylurea",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "low blood sugar",
+        "weight gain",
+        "dizziness"
+      ],
+      "typical_use_note": "Once-daily tablet taken with breakfast. Helps the pancreas release more insulin.",
+      "monitoring_note": "Signs of low blood sugar and keeping regular meals."
+    },
+    {
+      "name": "Pioglitazone",
+      "rxnorm_id": "33738",
+      "drug_class": "Thiazolidinedione (insulin sensitizer)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "swelling",
+        "weight gain",
+        "headache"
+      ],
+      "typical_use_note": "Once-daily tablet. Helps the body respond better to its own insulin.",
+      "monitoring_note": "Swelling, sudden weight gain or shortness of breath, which can be signs of heart failure."
+    },
+    {
+      "name": "Diphenhydramine",
+      "rxnorm_id": "3498",
+      "drug_class": "First-generation antihistamine",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "drowsiness",
+        "dry mouth",
+        "dizziness"
+      ],
+      "typical_use_note": "Tablet, capsule or liquid taken every 4 to 6 hours as needed. Blocks histamine to dry up a runny nose and ease itching. It often causes sleepiness.",
+      "monitoring_note": "Strong sleepiness, confusion in older adults, and other sedating medicines."
+    },
+    {
+      "name": "Albuterol",
+      "rxnorm_id": "435",
+      "drug_class": "Rescue inhaler (opens the airways)",
+      "route": "inhaler",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "shaky hands",
+        "fast heartbeat",
+        "nervousness"
+      ],
+      "typical_use_note": "Inhaled puffs taken as needed for wheezing or shortness of breath. Quickly relaxes the muscles around the airways so it is easier to breathe.",
+      "monitoring_note": "Needing your rescue inhaler more often than usual. Heart rate."
+    },
+    {
+      "name": "Pseudoephedrine",
+      "rxnorm_id": "8896",
+      "drug_class": "Decongestant",
+      "route": "oral",
+      "rx_otc": "OTC",
+      "common_side_effects": [
+        "trouble sleeping",
+        "nervousness",
+        "fast heartbeat"
+      ],
+      "typical_use_note": "Tablet or liquid taken every 4 to 6 hours as needed. Shrinks swollen nasal passages so it is easier to breathe.",
+      "monitoring_note": "High blood pressure or heart problems. It is sold from behind the pharmacy counter."
+    },
+    {
+      "name": "Lansoprazole",
+      "rxnorm_id": "17128",
+      "drug_class": "Proton pump inhibitor",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "headache",
+        "diarrhea",
+        "abdominal pain"
+      ],
+      "typical_use_note": "Once-daily capsule, taken before a meal. Lowers the amount of acid the stomach makes.",
+      "monitoring_note": "How long you need to stay on it and other acid medicines you take."
+    },
+    {
+      "name": "Loperamide",
+      "rxnorm_id": "6468",
+      "drug_class": "Anti-diarrheal",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "constipation",
+        "dizziness",
+        "abdominal cramps"
+      ],
+      "typical_use_note": "Capsule or liquid taken after loose stools, up to a daily limit. Slows the gut so stools become firmer.",
+      "monitoring_note": "Never take more than the daily limit; very high doses can cause dangerous heart rhythm problems. See a clinician if diarrhea lasts more than 2 days or there is blood."
+    },
+    {
+      "name": "Ondansetron",
+      "rxnorm_id": "26225",
+      "drug_class": "Anti-nausea medicine",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "headache",
+        "constipation",
+        "tiredness"
+      ],
+      "typical_use_note": "Tablet or dissolving tablet taken before treatment or as needed. Blocks a signal in the gut and brain that triggers nausea.",
+      "monitoring_note": "Heart rhythm problems, and other medicines that raise serotonin."
+    },
+    {
+      "name": "Polyethylene glycol",
+      "rxnorm_id": "221147",
+      "drug_class": "Laxative (draws water into the bowel)",
+      "route": "oral",
+      "rx_otc": "OTC",
+      "common_side_effects": [
+        "bloating",
+        "nausea",
+        "loose stools"
+      ],
+      "typical_use_note": "Powder mixed into a drink once a day. Draws water into the bowel to soften stools.",
+      "monitoring_note": "Diarrhea, or constipation that lasts more than a week."
+    },
+    {
+      "name": "Warfarin",
+      "rxnorm_id": "11289",
+      "drug_class": "Blood thinner (anticoagulant)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "bleeding or easy bruising",
+        "bleeding gums"
+      ],
+      "typical_use_note": "Once-daily tablet at the same time each day. The dose is adjusted using blood tests. Makes the blood slower to clot.",
+      "monitoring_note": "Regular blood tests (called INR) that show how well it is working, unusual bleeding, and how other medicines and foods rich in vitamin K change its effect."
+    },
+    {
+      "name": "Apixaban",
+      "rxnorm_id": "1364430",
+      "drug_class": "Blood thinner (anticoagulant)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "bleeding or easy bruising",
+        "nosebleeds"
+      ],
+      "typical_use_note": "Tablet taken twice a day. Makes the blood slower to clot.",
+      "monitoring_note": "Any unusual bleeding, and telling every clinician you take it before surgery or dental work."
+    },
+    {
+      "name": "Rivaroxaban",
+      "rxnorm_id": "1114195",
+      "drug_class": "Blood thinner (anticoagulant)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "bleeding or easy bruising",
+        "nosebleeds"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day, depending on the reason. Makes the blood slower to clot.",
+      "monitoring_note": "Any unusual bleeding, and telling every clinician you take it before surgery or dental work."
+    },
+    {
+      "name": "Clopidogrel",
+      "rxnorm_id": "32968",
+      "drug_class": "Antiplatelet",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "bleeding or easy bruising",
+        "rash",
+        "diarrhea"
+      ],
+      "typical_use_note": "Once-daily tablet. Keeps blood cells called platelets from sticking together and forming clots.",
+      "monitoring_note": "Unusual bleeding, and other blood thinners on your list."
+    },
+    {
+      "name": "Aspirin",
+      "rxnorm_id": "1191",
+      "drug_class": "Antiplatelet",
+      "route": "oral",
+      "rx_otc": "OTC",
+      "common_side_effects": [
+        "stomach upset",
+        "heartburn",
+        "easy bruising"
+      ],
+      "typical_use_note": "Tablet taken as needed for pain, or once a day at a low dose for heart protection. Keeps blood cells called platelets from sticking together and forming clots.",
+      "monitoring_note": "Black stools or stomach pain, and other blood thinners on your list. Only take daily low-dose aspirin if a clinician recommends it."
+    },
+    {
+      "name": "Levothyroxine",
+      "rxnorm_id": "10582",
+      "drug_class": "Thyroid hormone replacement",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "fast heartbeat",
+        "shakiness",
+        "trouble sleeping"
+      ],
+      "typical_use_note": "Once-daily tablet, usually taken on an empty stomach in the morning. Replaces the thyroid hormone your body is not making enough of.",
+      "monitoring_note": "Blood tests of thyroid levels, and taking it the same way every day. The side effects listed can mean the dose is too high."
+    },
+    {
+      "name": "Zolpidem",
+      "rxnorm_id": "39993",
+      "drug_class": "Sleep medicine (sedative-hypnotic)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "drowsiness",
+        "dizziness",
+        "headache"
+      ],
+      "typical_use_note": "Tablet taken right before bed, only when you can stay in bed for a full night. Slows brain activity so it is easier to fall asleep.",
+      "monitoring_note": "Sleepwalking or other unusual sleep behavior, and drowsiness the next day."
+    },
+    {
+      "name": "Sertraline",
+      "rxnorm_id": "36437",
+      "drug_class": "SSRI antidepressant",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "trouble sleeping",
+        "sexual side effects"
+      ],
+      "typical_use_note": "Once-daily tablet or liquid. Raises serotonin, a brain chemical that helps steady mood.",
+      "monitoring_note": "Mood changes or thoughts of self-harm, especially in the first weeks or after a dose change. Do not stop suddenly without asking."
+    },
+    {
+      "name": "Escitalopram",
+      "rxnorm_id": "321988",
+      "drug_class": "SSRI antidepressant",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "trouble sleeping",
+        "sexual side effects"
+      ],
+      "typical_use_note": "Once-daily tablet. Raises serotonin, a brain chemical that helps steady mood.",
+      "monitoring_note": "Mood changes or thoughts of self-harm, especially in the first weeks or after a dose change. Do not stop suddenly without asking."
+    },
+    {
+      "name": "Fluoxetine",
+      "rxnorm_id": "4493",
+      "drug_class": "SSRI antidepressant",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "trouble sleeping",
+        "sexual side effects"
+      ],
+      "typical_use_note": "Once-daily capsule or tablet. Raises serotonin, a brain chemical that helps steady mood.",
+      "monitoring_note": "Mood changes or thoughts of self-harm, especially in the first weeks or after a dose change. Do not stop suddenly without asking."
+    },
+    {
+      "name": "Citalopram",
+      "rxnorm_id": "2556",
+      "drug_class": "SSRI antidepressant",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "trouble sleeping",
+        "sexual side effects"
+      ],
+      "typical_use_note": "Once-daily tablet. Raises serotonin, a brain chemical that helps steady mood.",
+      "monitoring_note": "Mood changes or thoughts of self-harm, especially in the first weeks or after a dose change. Do not stop suddenly without asking."
+    },
+    {
+      "name": "Bupropion",
+      "rxnorm_id": "42347",
+      "drug_class": "Atypical antidepressant",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "dry mouth",
+        "trouble sleeping",
+        "headache"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day, depending on the type. Affects the brain chemicals dopamine and norepinephrine to lift mood.",
+      "monitoring_note": "Mood changes or thoughts of self-harm. The risk of seizures is higher at higher doses."
+    },
+    {
+      "name": "Trazodone",
+      "rxnorm_id": "10737",
+      "drug_class": "Atypical antidepressant",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "drowsiness",
+        "dizziness",
+        "dry mouth"
+      ],
+      "typical_use_note": "Tablet taken once or twice a day, often in the evening. Affects brain chemicals that help regulate mood.",
+      "monitoring_note": "Mood changes or thoughts of self-harm, and sleepiness the next day."
+    },
+    {
+      "name": "Buspirone",
+      "rxnorm_id": "1827",
+      "drug_class": "Anti-anxiety medicine (buspirone type)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "dizziness",
+        "nausea",
+        "headache"
+      ],
+      "typical_use_note": "Tablet taken two or three times a day. Eases anxiety without making most people very sleepy. It takes a few weeks to work.",
+      "monitoring_note": "Dizziness, and alcohol or other sedating medicines."
+    },
+    {
+      "name": "Alprazolam",
+      "rxnorm_id": "596",
+      "drug_class": "Benzodiazepine (calming medicine)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "drowsiness",
+        "dizziness",
+        "poor coordination"
+      ],
+      "typical_use_note": "Tablet taken as needed or a few times a day. Calms the nervous system, which eases anxiety.",
+      "monitoring_note": "Sleepiness, memory problems and dependence. Never combine with opioids or alcohol unless a clinician says it is safe."
+    },
+    {
+      "name": "Lorazepam",
+      "rxnorm_id": "6470",
+      "drug_class": "Benzodiazepine (calming medicine)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "drowsiness",
+        "dizziness",
+        "poor coordination"
+      ],
+      "typical_use_note": "Tablet taken as needed or a few times a day. Calms the nervous system, which eases anxiety.",
+      "monitoring_note": "Sleepiness, memory problems and dependence. Never combine with opioids or alcohol unless a clinician says it is safe."
+    },
+    {
+      "name": "Acetaminophen",
+      "rxnorm_id": "161",
+      "drug_class": "Pain and fever reducer (acetaminophen)",
+      "route": "oral",
+      "rx_otc": "OTC",
+      "common_side_effects": [
+        "liver damage if too much is taken",
+        "rare skin rash"
+      ],
+      "typical_use_note": "Tablet, capsule or liquid taken every 4 to 6 hours as needed, up to a daily limit. Eases pain and lowers fever.",
+      "monitoring_note": "The total amount from all products, since many cold and pain products also contain acetaminophen. Alcohol use."
+    },
+    {
+      "name": "Ibuprofen",
+      "rxnorm_id": "5640",
+      "drug_class": "NSAID (anti-inflammatory pain reliever)",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "stomach upset",
+        "heartburn",
+        "headache"
+      ],
+      "typical_use_note": "Tablet or liquid taken every 4 to 8 hours with food as needed. Reduces pain, swelling and fever by blocking body chemicals that cause inflammation.",
+      "monitoring_note": "Black stools or stomach pain, blood pressure, kidney function, and use with blood thinners."
+    },
+    {
+      "name": "Naproxen",
+      "rxnorm_id": "7258",
+      "drug_class": "NSAID (anti-inflammatory pain reliever)",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "stomach upset",
+        "heartburn",
+        "headache"
+      ],
+      "typical_use_note": "Tablet taken every 8 to 12 hours with food. Reduces pain, swelling and fever by blocking body chemicals that cause inflammation.",
+      "monitoring_note": "Black stools or stomach pain, blood pressure, kidney function, and use with blood thinners."
+    },
+    {
+      "name": "Meloxicam",
+      "rxnorm_id": "41493",
+      "drug_class": "NSAID (anti-inflammatory pain reliever)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "stomach upset",
+        "heartburn",
+        "headache"
+      ],
+      "typical_use_note": "Once-daily tablet. Reduces pain, swelling and fever by blocking body chemicals that cause inflammation.",
+      "monitoring_note": "Black stools or stomach pain, blood pressure, kidney function, and use with blood thinners."
+    },
+    {
+      "name": "Diclofenac",
+      "rxnorm_id": "3355",
+      "drug_class": "NSAID (anti-inflammatory pain reliever)",
+      "route": "oral or applied to skin (product-dependent)",
+      "rx_otc": "OTC or Rx (depends on the product)",
+      "common_side_effects": [
+        "stomach upset",
+        "heartburn",
+        "headache"
+      ],
+      "typical_use_note": "Tablet taken a few times a day, or a gel rubbed on sore joints. Reduces pain, swelling and fever by blocking body chemicals that cause inflammation.",
+      "monitoring_note": "Black stools or stomach pain, blood pressure, kidney function, and use with blood thinners."
+    },
+    {
+      "name": "Celecoxib",
+      "rxnorm_id": "140587",
+      "drug_class": "NSAID (anti-inflammatory pain reliever)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "stomach upset",
+        "heartburn",
+        "headache"
+      ],
+      "typical_use_note": "Capsule taken once or twice a day. Reduces pain, swelling and fever by blocking body chemicals that cause inflammation.",
+      "monitoring_note": "Black stools or stomach pain, blood pressure, kidney function, and use with blood thinners."
+    },
+    {
+      "name": "Tramadol",
+      "rxnorm_id": "10689",
+      "drug_class": "Opioid pain reliever",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "constipation",
+        "dizziness"
+      ],
+      "typical_use_note": "Tablet taken every 4 to 6 hours as needed. Changes how the brain senses pain.",
+      "monitoring_note": "Sleepiness, slowed breathing and dependence. Never combine with benzodiazepines or alcohol unless a clinician says it is safe."
+    },
+    {
+      "name": "Gabapentin",
+      "rxnorm_id": "25480",
+      "drug_class": "Anticonvulsant (nerve pain and seizure medicine)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "drowsiness",
+        "dizziness",
+        "swelling in the legs"
+      ],
+      "typical_use_note": "Capsule or tablet taken up to three times a day. Calms overactive nerve signals.",
+      "monitoring_note": "Sleepiness and dizziness, especially with alcohol or opioid pain relievers."
+    },
+    {
+      "name": "Cyclobenzaprine",
+      "rxnorm_id": "21949",
+      "drug_class": "Muscle relaxant",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "drowsiness",
+        "dry mouth",
+        "dizziness"
+      ],
+      "typical_use_note": "Tablet taken up to three times a day, for short periods. Eases muscle spasms by calming nerve signals to the muscles.",
+      "monitoring_note": "Sleepiness, and use with other sedating medicines."
+    },
+    {
+      "name": "Allopurinol",
+      "rxnorm_id": "519",
+      "drug_class": "Gout preventer (lowers uric acid)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "rash",
+        "nausea",
+        "gout flare-ups when first starting"
+      ],
+      "typical_use_note": "Once-daily tablet. Lowers uric acid so gout attacks are less likely.",
+      "monitoring_note": "A new rash (call your clinician right away), plus kidney function and uric acid blood tests."
+    },
+    {
+      "name": "Amoxicillin",
+      "rxnorm_id": "723",
+      "drug_class": "Penicillin antibiotic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "diarrhea",
+        "nausea",
+        "rash"
+      ],
+      "typical_use_note": "Capsule, tablet or liquid taken two or three times a day. Kills bacteria or stops them from growing.",
+      "monitoring_note": "Any past allergy to penicillin. A rash or trouble breathing could be an allergic reaction."
+    },
+    {
+      "name": "Azithromycin",
+      "rxnorm_id": "18631",
+      "drug_class": "Macrolide antibiotic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "diarrhea",
+        "nausea",
+        "stomach pain"
+      ],
+      "typical_use_note": "Usually a short course of tablets, often once a day for a few days. Stops bacteria from growing.",
+      "monitoring_note": "Heart rhythm problems, and other medicines you take."
+    },
+    {
+      "name": "Cephalexin",
+      "rxnorm_id": "2231",
+      "drug_class": "Cephalosporin antibiotic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "diarrhea",
+        "nausea",
+        "stomach upset"
+      ],
+      "typical_use_note": "Capsule or liquid taken a few times a day. Kills bacteria or stops them from growing.",
+      "monitoring_note": "Any past allergy to penicillin or similar antibiotics."
+    },
+    {
+      "name": "Ciprofloxacin",
+      "rxnorm_id": "2551",
+      "drug_class": "Fluoroquinolone antibiotic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "diarrhea",
+        "dizziness"
+      ],
+      "typical_use_note": "Tablet taken twice a day for a set number of days. Kills bacteria by stopping them from copying their DNA.",
+      "monitoring_note": "Tendon pain or swelling, tingling or numbness, and sun sensitivity. Call your clinician right away if any of these happen."
+    },
+    {
+      "name": "Doxycycline",
+      "rxnorm_id": "3640",
+      "drug_class": "Tetracycline antibiotic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "sun sensitivity",
+        "stomach upset"
+      ],
+      "typical_use_note": "Capsule or tablet taken once or twice a day, with a full glass of water. Stops bacteria from growing.",
+      "monitoring_note": "Sun protection, and spacing it apart from calcium, iron and antacids."
+    },
+    {
+      "name": "Nitrofurantoin",
+      "rxnorm_id": "7454",
+      "drug_class": "Urinary tract antibiotic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "headache",
+        "gas"
+      ],
+      "typical_use_note": "Capsule or liquid taken with food, usually a few times a day. Kills bacteria in the urinary tract.",
+      "monitoring_note": "Numbness or tingling, and any new cough or trouble breathing."
+    },
+    {
+      "name": "Metronidazole",
+      "rxnorm_id": "6922",
+      "drug_class": "Nitroimidazole antibiotic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "nausea",
+        "metallic taste",
+        "headache"
+      ],
+      "typical_use_note": "Tablet taken two or three times a day. Kills certain bacteria and parasites.",
+      "monitoring_note": "Avoid alcohol while taking it and for a few days after. Numbness or tingling."
+    },
+    {
+      "name": "Sildenafil",
+      "rxnorm_id": "136411",
+      "drug_class": "PDE5 inhibitor (erectile dysfunction medicine)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "headache",
+        "flushing",
+        "upset stomach"
+      ],
+      "typical_use_note": "Tablet taken about an hour before sexual activity, no more than once a day. Increases blood flow so an erection can happen with stimulation.",
+      "monitoring_note": "Never combine with nitrate heart medicines, which can cause a dangerous drop in blood pressure. Sudden vision or hearing loss needs urgent care."
+    },
+    {
+      "name": "Tadalafil",
+      "rxnorm_id": "358263",
+      "drug_class": "PDE5 inhibitor (erectile dysfunction medicine)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": [
+        "headache",
+        "upset stomach",
+        "back or muscle aches"
+      ],
+      "typical_use_note": "Tablet taken as needed, or once a day at a low dose. Increases blood flow so an erection can happen with stimulation.",
+      "monitoring_note": "Never combine with nitrate heart medicines, which can cause a dangerous drop in blood pressure. Sudden vision or hearing loss needs urgent care."
     }
   ],
   "indications": [
     {
       "drug": "Lisinopril",
       "condition": "Hypertension",
-      "raw_text": "Hypertension",
-      "source": "seed:illustrative"
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:aa5d68e7-c2b9-41eb-ade4-2cd57edc1533:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=aa5d68e7-c2b9-41eb-ade4-2cd57edc1533"
+    },
+    {
+      "drug": "Enalapril",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:3fbc6cce-7ad5-49d5-9705-5f66ef92d544:2026-09-01",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3fbc6cce-7ad5-49d5-9705-5f66ef92d544"
+    },
+    {
+      "drug": "Benazepril",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:ff732cfa-9ded-4226-b464-19c90a6865ae:2026-08-19",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ff732cfa-9ded-4226-b464-19c90a6865ae"
     },
     {
       "drug": "Amlodipine",
       "condition": "Hypertension",
-      "raw_text": "Hypertension; calcium-channel blocker associated with high blood pressure",
-      "source": "seed:illustrative"
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:5af8493b-2b73-859c-e063-6394a90a4620:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5af8493b-2b73-859c-e063-6394a90a4620"
+    },
+    {
+      "drug": "Diltiazem",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:5a0f67ad-17d8-a3f4-e063-6394a90afb32:2026-08-27",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5a0f67ad-17d8-a3f4-e063-6394a90afb32"
     },
     {
       "drug": "Hydrochlorothiazide",
       "condition": "Hypertension",
-      "raw_text": "Hypertension; thiazide diuretic associated with high blood pressure",
-      "source": "seed:illustrative"
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:f20fd735-30c7-4f89-8ceb-b6186646eea6:2026-08-27",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=f20fd735-30c7-4f89-8ceb-b6186646eea6"
+    },
+    {
+      "drug": "Chlorthalidone",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:5de362df-8fb9-4421-864c-7ea06339d6e7:2026-08-05",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5de362df-8fb9-4421-864c-7ea06339d6e7"
     },
     {
       "drug": "Losartan",
       "condition": "Hypertension",
-      "raw_text": "Hypertension; angiotensin II receptor blocker associated with high blood pressure",
-      "source": "seed:illustrative"
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:a397502e-abe7-49cf-97c7-d53a616947eb:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=a397502e-abe7-49cf-97c7-d53a616947eb"
+    },
+    {
+      "drug": "Valsartan",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:5a816ea6-2645-bd6e-e063-6294a90a908b:2026-09-02",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5a816ea6-2645-bd6e-e063-6294a90a908b"
     },
     {
       "drug": "Metoprolol",
       "condition": "Hypertension",
-      "raw_text": "Hypertension; beta blocker associated with high blood pressure",
-      "source": "seed:illustrative"
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:0ca72c89-82c5-4b31-b515-1a8b8e82ec59:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=0ca72c89-82c5-4b31-b515-1a8b8e82ec59"
     },
     {
       "drug": "Propranolol",
       "condition": "Hypertension",
-      "raw_text": "Hypertension",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Metformin",
-      "condition": "Type 2 diabetes mellitus",
-      "raw_text": "Type 2 diabetes mellitus",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Empagliflozin",
-      "condition": "Type 2 diabetes mellitus",
-      "raw_text": "Type 2 diabetes mellitus; SGLT2 inhibitor associated with T2DM",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Semaglutide",
-      "condition": "Type 2 diabetes mellitus",
-      "raw_text": "Type 2 diabetes mellitus; GLP-1 receptor agonist associated with T2DM",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Glipizide",
-      "condition": "Type 2 diabetes mellitus",
-      "raw_text": "Type 2 diabetes mellitus",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Sitagliptin",
-      "condition": "Type 2 diabetes mellitus",
-      "raw_text": "Type 2 diabetes mellitus; DPP-4 inhibitor associated with T2DM",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Cetirizine",
-      "condition": "Seasonal allergic rhinitis",
-      "raw_text": "Seasonal allergic rhinitis; hay fever",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Loratadine",
-      "condition": "Seasonal allergic rhinitis",
-      "raw_text": "Seasonal allergic rhinitis",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Fluticasone (nasal)",
-      "condition": "Seasonal allergic rhinitis",
-      "raw_text": "Seasonal allergic rhinitis; intranasal corticosteroid associated with hay fever",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Montelukast",
-      "condition": "Seasonal allergic rhinitis",
-      "raw_text": "Seasonal allergic rhinitis",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Omeprazole",
-      "condition": "Gastroesophageal reflux disease",
-      "raw_text": "Gastroesophageal reflux disease (GERD)",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Pantoprazole",
-      "condition": "Gastroesophageal reflux disease",
-      "raw_text": "Gastroesophageal reflux disease",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Famotidine",
-      "condition": "Gastroesophageal reflux disease",
-      "raw_text": "Gastroesophageal reflux disease; acid reflux / heartburn-associated indication in seed data",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Esomeprazole",
-      "condition": "Gastroesophageal reflux disease",
-      "raw_text": "Gastroesophageal reflux disease (GERD)",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Sumatriptan",
-      "condition": "Migraine",
-      "raw_text": "Migraine; acute treatment associated indication in seed data",
-      "source": "seed:illustrative"
-    },
-    {
-      "drug": "Rizatriptan",
-      "condition": "Migraine",
-      "raw_text": "Migraine",
-      "source": "seed:illustrative"
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:5affa0ea-db84-86fd-e063-6294a90a4d16:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5affa0ea-db84-86fd-e063-6294a90a4d16"
     },
     {
       "drug": "Propranolol",
       "condition": "Migraine",
-      "raw_text": "Migraine; prevention-associated indication in seed data",
-      "source": "seed:illustrative"
+      "raw_text": "Helps prevent migraine attacks.",
+      "source": "openfda:label:5affa0ea-db84-86fd-e063-6294a90a4d16:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5affa0ea-db84-86fd-e063-6294a90a4d16"
     },
     {
-      "drug": "Topiramate",
+      "drug": "Atenolol",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:897e18f6-3b57-4ef0-85ff-9dfa23521eb9:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=897e18f6-3b57-4ef0-85ff-9dfa23521eb9"
+    },
+    {
+      "drug": "Carvedilol",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:d7d6bfff-fbb6-4a1f-aa13-babbb9a1e878:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d7d6bfff-fbb6-4a1f-aa13-babbb9a1e878"
+    },
+    {
+      "drug": "Furosemide",
+      "condition": "Swelling from fluid buildup",
+      "raw_text": "Removes extra fluid that causes swelling.",
+      "source": "openfda:label:dba00759-87b4-4ecf-998e-ba03ed3d2f1a:2026-08-17",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=dba00759-87b4-4ecf-998e-ba03ed3d2f1a"
+    },
+    {
+      "drug": "Furosemide",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:dba00759-87b4-4ecf-998e-ba03ed3d2f1a:2026-08-17",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=dba00759-87b4-4ecf-998e-ba03ed3d2f1a"
+    },
+    {
+      "drug": "Spironolactone",
+      "condition": "Swelling from fluid buildup",
+      "raw_text": "Removes extra fluid that causes swelling.",
+      "source": "openfda:label:0cc23419-e6d5-4036-8011-dc1d2455e0cb:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=0cc23419-e6d5-4036-8011-dc1d2455e0cb"
+    },
+    {
+      "drug": "Spironolactone",
+      "condition": "Hypertension",
+      "raw_text": "Lowers high blood pressure.",
+      "source": "openfda:label:0cc23419-e6d5-4036-8011-dc1d2455e0cb:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=0cc23419-e6d5-4036-8011-dc1d2455e0cb"
+    },
+    {
+      "drug": "Atorvastatin",
+      "condition": "High cholesterol",
+      "raw_text": "Lowers cholesterol and the chance of a heart attack or stroke.",
+      "source": "openfda:label:d9adb9e4-c495-9530-e5e3-7e3b01d53e4c:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d9adb9e4-c495-9530-e5e3-7e3b01d53e4c"
+    },
+    {
+      "drug": "Rosuvastatin",
+      "condition": "High cholesterol",
+      "raw_text": "Lowers cholesterol and the chance of a heart attack or stroke.",
+      "source": "openfda:label:cb942007-6ef1-4445-8dbd-6f4972148bf1:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=cb942007-6ef1-4445-8dbd-6f4972148bf1"
+    },
+    {
+      "drug": "Simvastatin",
+      "condition": "High cholesterol",
+      "raw_text": "Lowers cholesterol and the chance of a heart attack or stroke.",
+      "source": "openfda:label:3f6fad0b-0278-433f-86db-761b673a5803:2026-08-31",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3f6fad0b-0278-433f-86db-761b673a5803"
+    },
+    {
+      "drug": "Pravastatin",
+      "condition": "High cholesterol",
+      "raw_text": "Lowers cholesterol and the chance of a heart attack or stroke.",
+      "source": "openfda:label:6cef5e92-26b7-435c-878f-72a05a624560:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6cef5e92-26b7-435c-878f-72a05a624560"
+    },
+    {
+      "drug": "Ezetimibe",
+      "condition": "High cholesterol",
+      "raw_text": "Lowers high cholesterol.",
+      "source": "openfda:label:090776cf-f211-49a3-a993-ff5d707311f2:2026-07-06",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=090776cf-f211-49a3-a993-ff5d707311f2"
+    },
+    {
+      "drug": "Metformin",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Helps control blood sugar in type 2 diabetes.",
+      "source": "openfda:label:05999192-ebc6-4198-bd1e-f46abbfb4f8a:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=05999192-ebc6-4198-bd1e-f46abbfb4f8a"
+    },
+    {
+      "drug": "Empagliflozin",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Helps control blood sugar in type 2 diabetes.",
+      "source": "openfda:label:59ed43d9-b4e0-72a2-e063-6394a90a327d:2026-08-26",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=59ed43d9-b4e0-72a2-e063-6394a90a327d"
+    },
+    {
+      "drug": "Semaglutide",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Helps control blood sugar in type 2 diabetes.",
+      "source": "openfda:label:42bdd912-2393-44c4-b7e0-47672ca28991:2026-07-30",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=42bdd912-2393-44c4-b7e0-47672ca28991"
+    },
+    {
+      "drug": "Glipizide",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Helps control blood sugar in type 2 diabetes.",
+      "source": "openfda:label:00729e82-150a-464a-abe7-a3319721fbdb:2026-08-27",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=00729e82-150a-464a-abe7-a3319721fbdb"
+    },
+    {
+      "drug": "Glimepiride",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Helps control blood sugar in type 2 diabetes.",
+      "source": "openfda:label:fc9d8495-184c-3af1-e053-6394a90a5e29:2026-06-22",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fc9d8495-184c-3af1-e053-6394a90a5e29"
+    },
+    {
+      "drug": "Sitagliptin",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Helps control blood sugar in type 2 diabetes.",
+      "source": "openfda:label:58e23b30-451c-f451-e063-6394a90a35a7:2026-08-12",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=58e23b30-451c-f451-e063-6394a90a35a7"
+    },
+    {
+      "drug": "Pioglitazone",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Helps control blood sugar in type 2 diabetes.",
+      "source": "openfda:label:c748f901-8321-4dc2-8848-b7ed27f11f97:2026-08-27",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=c748f901-8321-4dc2-8848-b7ed27f11f97"
+    },
+    {
+      "drug": "Cetirizine",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Eases hay fever and allergy symptoms like sneezing, a runny nose and itchy eyes.",
+      "source": "openfda:label:7e94be37-0971-44b3-9857-f56330d810b6:2026-03-25",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7e94be37-0971-44b3-9857-f56330d810b6"
+    },
+    {
+      "drug": "Loratadine",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Eases hay fever and allergy symptoms like sneezing, a runny nose and itchy eyes.",
+      "source": "openfda:label:539336e6-7979-47ed-b1ea-fd46ef547aee:2026-09-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=539336e6-7979-47ed-b1ea-fd46ef547aee"
+    },
+    {
+      "drug": "Diphenhydramine",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Eases hay fever and allergy symptoms like sneezing, a runny nose and itchy eyes.",
+      "source": "openfda:label:d8944f3c-acef-4ebe-9633-7d641ae95edf:2026-08-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d8944f3c-acef-4ebe-9633-7d641ae95edf"
+    },
+    {
+      "drug": "Diphenhydramine",
+      "condition": "Trouble sleeping",
+      "raw_text": "Helps with occasional sleeplessness. It can cause sleepiness the next day.",
+      "source": "openfda:label:d8944f3c-acef-4ebe-9633-7d641ae95edf:2026-08-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d8944f3c-acef-4ebe-9633-7d641ae95edf"
+    },
+    {
+      "drug": "Fluticasone (nasal)",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Eases hay fever and allergy symptoms like sneezing, a runny nose and itchy eyes.",
+      "source": "openfda:label:bc08915f-fa3a-4509-a01c-42b577f39b99:2026-08-19",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=bc08915f-fa3a-4509-a01c-42b577f39b99"
+    },
+    {
+      "drug": "Montelukast",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Eases hay fever and allergy symptoms like sneezing, a runny nose and itchy eyes.",
+      "source": "openfda:label:583a9499-97f0-2ebf-e063-6394a90a35af:2026-08-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=583a9499-97f0-2ebf-e063-6394a90a35af"
+    },
+    {
+      "drug": "Montelukast",
+      "condition": "Asthma",
+      "raw_text": "Helps prevent asthma attacks. It is not a rescue medicine.",
+      "source": "openfda:label:583a9499-97f0-2ebf-e063-6394a90a35af:2026-08-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=583a9499-97f0-2ebf-e063-6394a90a35af"
+    },
+    {
+      "drug": "Albuterol",
+      "condition": "Asthma",
+      "raw_text": "Quickly relieves asthma symptoms like wheezing.",
+      "source": "openfda:label:17858afa-dcdf-4612-b475-3b6baadfb639:2026-08-06",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=17858afa-dcdf-4612-b475-3b6baadfb639"
+    },
+    {
+      "drug": "Pseudoephedrine",
+      "condition": "Stuffy nose and congestion",
+      "raw_text": "Relieves a stuffy nose from a cold or allergies.",
+      "source": "openfda:label:1fdb1ba5-4072-4baf-9e30-f01d57bf6d82:2026-08-15",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=1fdb1ba5-4072-4baf-9e30-f01d57bf6d82"
+    },
+    {
+      "drug": "Omeprazole",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Treats acid reflux and heartburn (GERD).",
+      "source": "openfda:label:63b3982a-b541-4b0d-99d4-93a673e57d46:2026-08-28",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63b3982a-b541-4b0d-99d4-93a673e57d46"
+    },
+    {
+      "drug": "Esomeprazole",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Treats acid reflux and heartburn (GERD).",
+      "source": "openfda:label:f907e633-4080-44ae-829f-141497876922:2026-09-02",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=f907e633-4080-44ae-829f-141497876922"
+    },
+    {
+      "drug": "Pantoprazole",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Treats acid reflux and heartburn (GERD).",
+      "source": "openfda:label:59f50bcb-85e5-e3f6-e063-6294a90a11ae:2026-08-26",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=59f50bcb-85e5-e3f6-e063-6294a90a11ae"
+    },
+    {
+      "drug": "Lansoprazole",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Treats acid reflux and heartburn (GERD).",
+      "source": "openfda:label:7daa1721-f92b-4096-b19e-4d27fc8acb51:2026-08-24",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7daa1721-f92b-4096-b19e-4d27fc8acb51"
+    },
+    {
+      "drug": "Famotidine",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Treats acid reflux and heartburn (GERD).",
+      "source": "openfda:label:669fbd46-cae5-4477-884e-8eca893d2e05:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=669fbd46-cae5-4477-884e-8eca893d2e05"
+    },
+    {
+      "drug": "Loperamide",
+      "condition": "Diarrhea",
+      "raw_text": "Treats sudden loose stools (diarrhea).",
+      "source": "openfda:label:59e1c4cf-17cc-13c9-e063-6294a90af61c:2026-08-25",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=59e1c4cf-17cc-13c9-e063-6294a90af61c"
+    },
+    {
+      "drug": "Ondansetron",
+      "condition": "Nausea and vomiting",
+      "raw_text": "Prevents or treats nausea and vomiting.",
+      "source": "openfda:label:960e2104-18c3-4cfa-abf6-f1b30c452918:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=960e2104-18c3-4cfa-abf6-f1b30c452918"
+    },
+    {
+      "drug": "Polyethylene glycol",
+      "condition": "Constipation",
+      "raw_text": "Treats occasional constipation.",
+      "source": "openfda:label:bbc11078-73f7-4d27-b0d3-4d4ae5dae240:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=bbc11078-73f7-4d27-b0d3-4d4ae5dae240"
+    },
+    {
+      "drug": "Sumatriptan",
       "condition": "Migraine",
-      "raw_text": "Migraine; prevention-associated indication in seed data",
-      "source": "seed:illustrative"
+      "raw_text": "Treats a migraine attack once it starts.",
+      "source": "openfda:label:bf9fd9fe-095b-4478-bd2e-a5534af07761:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=bf9fd9fe-095b-4478-bd2e-a5534af07761"
+    },
+    {
+      "drug": "Rizatriptan",
+      "condition": "Migraine",
+      "raw_text": "Treats a migraine attack once it starts.",
+      "source": "openfda:label:1e547fac-a9e5-4c7b-adba-4e6b75141183:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=1e547fac-a9e5-4c7b-adba-4e6b75141183"
     },
     {
       "drug": "Ubrogepant",
       "condition": "Migraine",
-      "raw_text": "Migraine; acute treatment associated indication in seed data",
-      "source": "seed:illustrative"
+      "raw_text": "Treats a migraine attack once it starts.",
+      "source": "openfda:label:fd9f9458-fd96-4688-be3f-f77b3d1af6ab:2025-06-05",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fd9f9458-fd96-4688-be3f-f77b3d1af6ab"
+    },
+    {
+      "drug": "Topiramate",
+      "condition": "Migraine",
+      "raw_text": "Helps prevent migraine attacks.",
+      "source": "openfda:label:3f99b26b-79b9-4efb-aa2c-2868e1e126c8:2026-09-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3f99b26b-79b9-4efb-aa2c-2868e1e126c8"
+    },
+    {
+      "drug": "Warfarin",
+      "condition": "Blood clots and stroke prevention",
+      "raw_text": "Helps prevent and treat harmful blood clots.",
+      "source": "openfda:label:5a5b5e3a-6556-a542-e063-6294a90a6d3f:2026-08-31",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5a5b5e3a-6556-a542-e063-6294a90a6d3f"
+    },
+    {
+      "drug": "Apixaban",
+      "condition": "Blood clots and stroke prevention",
+      "raw_text": "Lowers the chance of stroke from an irregular heartbeat and treats blood clots.",
+      "source": "openfda:label:a454cd24-0c6d-46e8-b1e4-197388606175:2026-04-24",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=a454cd24-0c6d-46e8-b1e4-197388606175"
+    },
+    {
+      "drug": "Rivaroxaban",
+      "condition": "Blood clots and stroke prevention",
+      "raw_text": "Lowers the chance of stroke from an irregular heartbeat and treats blood clots.",
+      "source": "openfda:label:10db92f9-2300-4a80-836b-673e1ae91610:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=10db92f9-2300-4a80-836b-673e1ae91610"
+    },
+    {
+      "drug": "Clopidogrel",
+      "condition": "Blood clots and stroke prevention",
+      "raw_text": "Lowers the chance of a heart attack or stroke in people with heart or artery disease.",
+      "source": "openfda:label:669f0bc6-f173-484d-8efe-c006683b25d1:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=669f0bc6-f173-484d-8efe-c006683b25d1"
+    },
+    {
+      "drug": "Aspirin",
+      "condition": "Pain and fever",
+      "raw_text": "Eases minor aches and pains and lowers fever.",
+      "source": "openfda:label:7ce4807e-7bd5-41f1-a9c7-1f3af6acdc09:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ce4807e-7bd5-41f1-a9c7-1f3af6acdc09"
+    },
+    {
+      "drug": "Aspirin",
+      "condition": "Blood clots and stroke prevention",
+      "raw_text": "Low-dose aspirin can lower the chance of a heart attack or stroke in some people.",
+      "source": "openfda:label:7ce4807e-7bd5-41f1-a9c7-1f3af6acdc09:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ce4807e-7bd5-41f1-a9c7-1f3af6acdc09"
+    },
+    {
+      "drug": "Levothyroxine",
+      "condition": "Underactive thyroid",
+      "raw_text": "Replaces thyroid hormone when the thyroid does not make enough.",
+      "source": "openfda:label:4c903249-69e9-4168-a9d1-22e6c2c1eb22:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4c903249-69e9-4168-a9d1-22e6c2c1eb22"
+    },
+    {
+      "drug": "Zolpidem",
+      "condition": "Trouble sleeping",
+      "raw_text": "Helps with trouble falling asleep.",
+      "source": "openfda:label:1584bad1-7bf4-4805-bdd9-7eb0fac92721:2026-09-01",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=1584bad1-7bf4-4805-bdd9-7eb0fac92721"
+    },
+    {
+      "drug": "Sertraline",
+      "condition": "Depression",
+      "raw_text": "Treats depression.",
+      "source": "openfda:label:7d598f1a-6c76-458a-a155-7a6a0743a2d3:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7d598f1a-6c76-458a-a155-7a6a0743a2d3"
+    },
+    {
+      "drug": "Sertraline",
+      "condition": "Anxiety",
+      "raw_text": "Treats anxiety disorders, including panic disorder.",
+      "source": "openfda:label:7d598f1a-6c76-458a-a155-7a6a0743a2d3:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7d598f1a-6c76-458a-a155-7a6a0743a2d3"
+    },
+    {
+      "drug": "Escitalopram",
+      "condition": "Depression",
+      "raw_text": "Treats depression.",
+      "source": "openfda:label:d75e3b97-1ead-4e7b-9ae3-3626aede1efd:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d75e3b97-1ead-4e7b-9ae3-3626aede1efd"
+    },
+    {
+      "drug": "Escitalopram",
+      "condition": "Anxiety",
+      "raw_text": "Treats generalized anxiety.",
+      "source": "openfda:label:d75e3b97-1ead-4e7b-9ae3-3626aede1efd:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d75e3b97-1ead-4e7b-9ae3-3626aede1efd"
+    },
+    {
+      "drug": "Fluoxetine",
+      "condition": "Depression",
+      "raw_text": "Treats depression.",
+      "source": "openfda:label:76b264ce-2a13-4511-8e21-4ffad0a327f9:2026-08-31",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=76b264ce-2a13-4511-8e21-4ffad0a327f9"
+    },
+    {
+      "drug": "Fluoxetine",
+      "condition": "Anxiety",
+      "raw_text": "Treats panic disorder.",
+      "source": "openfda:label:76b264ce-2a13-4511-8e21-4ffad0a327f9:2026-08-31",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=76b264ce-2a13-4511-8e21-4ffad0a327f9"
+    },
+    {
+      "drug": "Citalopram",
+      "condition": "Depression",
+      "raw_text": "Treats depression.",
+      "source": "openfda:label:0109f365-bebd-4810-a56f-4451e10245db:2026-09-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=0109f365-bebd-4810-a56f-4451e10245db"
+    },
+    {
+      "drug": "Bupropion",
+      "condition": "Depression",
+      "raw_text": "Treats depression.",
+      "source": "openfda:label:86530199-999b-9f92-b1bc-b8515ec829f3:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=86530199-999b-9f92-b1bc-b8515ec829f3"
+    },
+    {
+      "drug": "Trazodone",
+      "condition": "Depression",
+      "raw_text": "Treats depression.",
+      "source": "openfda:label:fa7afa93-b98c-4dc7-bbb8-ab6a058427b9:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa7afa93-b98c-4dc7-bbb8-ab6a058427b9"
+    },
+    {
+      "drug": "Buspirone",
+      "condition": "Anxiety",
+      "raw_text": "Treats anxiety.",
+      "source": "openfda:label:fa4d5cac-f687-4440-99d2-8bb27cf2f4ed:2026-09-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa4d5cac-f687-4440-99d2-8bb27cf2f4ed"
+    },
+    {
+      "drug": "Alprazolam",
+      "condition": "Anxiety",
+      "raw_text": "Treats anxiety and panic disorder.",
+      "source": "openfda:label:563e09db-2f3d-4ce8-b356-ae44477be6d0:2026-08-27",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=563e09db-2f3d-4ce8-b356-ae44477be6d0"
+    },
+    {
+      "drug": "Lorazepam",
+      "condition": "Anxiety",
+      "raw_text": "Treats anxiety.",
+      "source": "openfda:label:c0810422-b732-4c04-97d8-c1521c401ef4:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=c0810422-b732-4c04-97d8-c1521c401ef4"
+    },
+    {
+      "drug": "Acetaminophen",
+      "condition": "Pain and fever",
+      "raw_text": "Eases minor aches and pains and lowers fever.",
+      "source": "openfda:label:7f445de3-30cf-4bd8-892d-05979cd399e7:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7f445de3-30cf-4bd8-892d-05979cd399e7"
+    },
+    {
+      "drug": "Ibuprofen",
+      "condition": "Pain and fever",
+      "raw_text": "Eases minor aches and pains and lowers fever.",
+      "source": "openfda:label:2144eff0-d7ab-486d-b116-a4ff3ae2afe2:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=2144eff0-d7ab-486d-b116-a4ff3ae2afe2"
+    },
+    {
+      "drug": "Ibuprofen",
+      "condition": "Arthritis and inflammation",
+      "raw_text": "Eases pain and swelling from arthritis and other inflammation.",
+      "source": "openfda:label:2144eff0-d7ab-486d-b116-a4ff3ae2afe2:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=2144eff0-d7ab-486d-b116-a4ff3ae2afe2"
+    },
+    {
+      "drug": "Naproxen",
+      "condition": "Pain and fever",
+      "raw_text": "Eases minor aches and pains and lowers fever.",
+      "source": "openfda:label:f6f4a670-235e-4235-84a8-a74dc8ca5586:2026-08-26",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=f6f4a670-235e-4235-84a8-a74dc8ca5586"
+    },
+    {
+      "drug": "Naproxen",
+      "condition": "Arthritis and inflammation",
+      "raw_text": "Eases pain and swelling from arthritis and other inflammation.",
+      "source": "openfda:label:f6f4a670-235e-4235-84a8-a74dc8ca5586:2026-08-26",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=f6f4a670-235e-4235-84a8-a74dc8ca5586"
+    },
+    {
+      "drug": "Meloxicam",
+      "condition": "Arthritis and inflammation",
+      "raw_text": "Eases pain and swelling from arthritis and other inflammation.",
+      "source": "openfda:label:385b7cf4-976a-4a58-9ebc-def8b6e78b75:2026-08-19",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=385b7cf4-976a-4a58-9ebc-def8b6e78b75"
+    },
+    {
+      "drug": "Diclofenac",
+      "condition": "Arthritis and inflammation",
+      "raw_text": "Eases pain and swelling from arthritis and other inflammation.",
+      "source": "openfda:label:82218d5c-1625-471a-aabe-f43338e5176b:2026-09-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=82218d5c-1625-471a-aabe-f43338e5176b"
+    },
+    {
+      "drug": "Diclofenac",
+      "condition": "Pain and fever",
+      "raw_text": "Eases minor aches and pains and lowers fever.",
+      "source": "openfda:label:82218d5c-1625-471a-aabe-f43338e5176b:2026-09-04",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=82218d5c-1625-471a-aabe-f43338e5176b"
+    },
+    {
+      "drug": "Celecoxib",
+      "condition": "Arthritis and inflammation",
+      "raw_text": "Eases pain and swelling from arthritis and other inflammation.",
+      "source": "openfda:label:3a1eadd5-c0a7-473e-bde0-6b9450d11c95:2026-09-02",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3a1eadd5-c0a7-473e-bde0-6b9450d11c95"
+    },
+    {
+      "drug": "Tramadol",
+      "condition": "Moderate to severe pain",
+      "raw_text": "Treats pain that is strong enough to need a prescription pain reliever.",
+      "source": "openfda:label:c6104e62-5b2c-41a1-afb3-00dcf267a384:2026-09-01",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=c6104e62-5b2c-41a1-afb3-00dcf267a384"
+    },
+    {
+      "drug": "Gabapentin",
+      "condition": "Nerve pain",
+      "raw_text": "Treats nerve pain, such as pain that lingers after shingles.",
+      "source": "openfda:label:4a975ebe-ae0a-446a-8a3d-2ca325e28f93:2026-09-11",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4a975ebe-ae0a-446a-8a3d-2ca325e28f93"
+    },
+    {
+      "drug": "Cyclobenzaprine",
+      "condition": "Muscle spasms",
+      "raw_text": "Eases muscle spasms from strains and injuries.",
+      "source": "openfda:label:5d536e88-62be-45bd-bd09-0efc53fe12b9:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5d536e88-62be-45bd-bd09-0efc53fe12b9"
+    },
+    {
+      "drug": "Allopurinol",
+      "condition": "Gout",
+      "raw_text": "Helps prevent gout attacks by lowering uric acid.",
+      "source": "openfda:label:8f50e91e-66a7-4fd4-888a-9f1986aa661c:2026-09-10",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=8f50e91e-66a7-4fd4-888a-9f1986aa661c"
+    },
+    {
+      "drug": "Amoxicillin",
+      "condition": "Bacterial infections",
+      "raw_text": "Treats infections caused by bacteria, such as ear, throat, chest and urinary infections. It does not work on viruses.",
+      "source": "openfda:label:4adc198e-39d8-4b3e-bfa4-278aaf4064ae:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4adc198e-39d8-4b3e-bfa4-278aaf4064ae"
+    },
+    {
+      "drug": "Azithromycin",
+      "condition": "Bacterial infections",
+      "raw_text": "Treats infections caused by bacteria, such as throat, chest and some skin infections. It does not work on viruses.",
+      "source": "openfda:label:94e17ae5-0871-67a0-e053-2995a90ae0ae:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=94e17ae5-0871-67a0-e053-2995a90ae0ae"
+    },
+    {
+      "drug": "Cephalexin",
+      "condition": "Bacterial infections",
+      "raw_text": "Treats infections caused by bacteria, such as skin, ear and urinary infections. It does not work on viruses.",
+      "source": "openfda:label:4ecf9314-76e2-c270-e063-6294a90ad8db:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4ecf9314-76e2-c270-e063-6294a90ad8db"
+    },
+    {
+      "drug": "Ciprofloxacin",
+      "condition": "Bacterial infections",
+      "raw_text": "Treats infections caused by bacteria. It does not work on viruses like colds or the flu.",
+      "source": "openfda:label:c47250c2-bece-46b5-8b3b-b7c97d9005d8:2026-09-03",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=c47250c2-bece-46b5-8b3b-b7c97d9005d8"
+    },
+    {
+      "drug": "Doxycycline",
+      "condition": "Bacterial infections",
+      "raw_text": "Treats infections caused by bacteria. It does not work on viruses like colds or the flu.",
+      "source": "openfda:label:88c429a1-351d-432e-b69b-d7a0afca482a:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=88c429a1-351d-432e-b69b-d7a0afca482a"
+    },
+    {
+      "drug": "Nitrofurantoin",
+      "condition": "Bacterial infections",
+      "raw_text": "Treats urinary tract infections caused by bacteria.",
+      "source": "openfda:label:4553ccc1-0bad-4c75-aae2-1a1c87bc8db0:2026-09-08",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4553ccc1-0bad-4c75-aae2-1a1c87bc8db0"
+    },
+    {
+      "drug": "Metronidazole",
+      "condition": "Bacterial infections",
+      "raw_text": "Treats infections caused by bacteria. It does not work on viruses like colds or the flu.",
+      "source": "openfda:label:4040db14-750f-6d20-e054-00144ff8d46c:2026-08-26",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4040db14-750f-6d20-e054-00144ff8d46c"
+    },
+    {
+      "drug": "Sildenafil",
+      "condition": "Erectile dysfunction",
+      "raw_text": "Treats erectile dysfunction.",
+      "source": "openfda:label:174ef537-e3e6-42bd-a478-47b930ddc761:2026-08-31",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=174ef537-e3e6-42bd-a478-47b930ddc761"
+    },
+    {
+      "drug": "Tadalafil",
+      "condition": "Erectile dysfunction",
+      "raw_text": "Treats erectile dysfunction.",
+      "source": "openfda:label:81222924-29d9-4031-954d-132923867b8e:2026-09-09",
+      "source_url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=81222924-29d9-4031-954d-132923867b8e"
     }
   ]
 }

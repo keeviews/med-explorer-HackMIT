@@ -35,6 +35,8 @@ DEMO_MEDICATIONS = [
     {"name": "Omeprazole 20 MG Delayed Release Oral Capsule", "rxnorm_id": "7646"},
     {"name": "Loratadine 10 MG Oral Tablet", "rxnorm_id": None},
     {"name": "Atorvastatin 40 MG Oral Tablet", "rxnorm_id": "83367"},
+    # A supplement is not an FDA-labeled medicine, so it stays in the "not in this app" list.
+    {"name": "Fish Oil 1000 MG Oral Capsule", "rxnorm_id": None},
 ]
 
 SMART_SCOPES = (
@@ -100,17 +102,23 @@ def match_seed_drug(session: Session, name: str, rxnorm_id: str | None) -> Drug 
     needle = _core_name(name)
     if len(needle) < 4:
         return None
-    best: Drug | None = None
-    best_len = 0
+    matches: list[tuple[str, Drug]] = []
     for drug in session.query(Drug).all():
         seed = _core_name(drug.name)
         if not seed:
             continue
         if needle == seed or seed in needle or needle in seed:
-            if len(seed) > best_len:
-                best = drug
-                best_len = len(seed)
-    return best if best_len >= 5 else None
+            matches.append((seed, drug))
+    # An exact name always wins ("omeprazole" is also inside "esomeprazole").
+    for seed, drug in matches:
+        if seed == needle:
+            return drug
+    # "X and Y", "X/Y" or "X with Y" is a combination product. Guessing one
+    # ingredient could show the wrong medicine, so leave it for the person to review.
+    if re.search(r"/| and | with |\+", needle):
+        return None
+    strong = [drug for seed, drug in matches if len(seed) >= 5]
+    return strong[0] if len(strong) == 1 else None
 
 
 def map_medications(

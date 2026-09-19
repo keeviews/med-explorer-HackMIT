@@ -6,6 +6,7 @@ import json
 
 from sqlalchemy.orm import Session, selectinload
 
+from app.disclaimer import DATA_LABEL
 from app.models import Drug, Indication
 
 
@@ -64,7 +65,7 @@ def serialize_drug(drug: Drug) -> dict:
         "typical_use_note": drug.typical_use_note,
         "monitoring_note": drug.monitoring_note,
         "linked_conditions": linked,
-        "data_label": "Illustrative seed data",
+        "data_label": DATA_LABEL,
     }
 
 
