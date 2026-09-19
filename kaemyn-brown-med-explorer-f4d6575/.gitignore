@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+backend/.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Local database (rebuilt from data/seed.json)
+data/*.db
+data/*.db-journal
+
+# Env / OS
+.env
+.env.local
+.DS_Store
+.idea/
+.vscode/

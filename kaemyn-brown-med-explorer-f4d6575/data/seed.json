@@ -1,0 +1,459 @@
+{
+  "meta": {
+    "label": "Illustrative seed data for development",
+    "not": "clinical guidelines, a complete DrugCentral dump, or prescribing advice",
+    "intended_next_source": "DrugCentral omop_relationship indications + RxNorm identifiers; later SIDER/OpenFDA for labeled effects"
+  },
+  "combination_rules": {
+    "label": "Illustrative seed flags for development — not a complete interaction checker, DDI database, or deprescribing engine",
+    "duplicate_class_urgent": [
+      "ACE inhibitor",
+      "Angiotensin II receptor blocker",
+      "Calcium channel blocker",
+      "Thiazide diuretic",
+      "Beta blocker",
+      "Proton pump inhibitor",
+      "H2 blocker",
+      "Triptan",
+      "CGRP receptor antagonist (gepant)",
+      "Second-generation antihistamine",
+      "Intranasal corticosteroid",
+      "SGLT2 inhibitor",
+      "GLP-1 receptor agonist",
+      "Sulfonylurea",
+      "DPP-4 inhibitor",
+      "Biguanide"
+    ],
+    "pairs": [
+      {
+        "classes": ["ACE inhibitor", "Angiotensin II receptor blocker"],
+        "severity": "urgent_seed",
+        "title": "ACE inhibitor and ARB on the same list",
+        "detail": "Using an ACE inhibitor together with an ARB is a combination clinicians often review closely. This seed flag is not a complete interaction check and is not an order to stop either medicine."
+      },
+      {
+        "classes": ["Proton pump inhibitor", "H2 blocker"],
+        "severity": "discuss",
+        "title": "Two acid-reducing classes on the same list",
+        "detail": "A PPI and an H2 blocker sometimes appear together, and sometimes that overlap is worth a visit question. This is a discussion flag, not advice to drop one."
+      },
+      {
+        "classes": ["Triptan", "CGRP receptor antagonist (gepant)"],
+        "severity": "discuss",
+        "title": "More than one as-needed migraine class",
+        "detail": "A triptan and a gepant on the same list is something people often double-check with a clinician (timing, how often each is used). This app cannot say they must or must not be combined."
+      }
+    ]
+  },
+  "conditions": [
+    {
+      "name": "Hypertension",
+      "aliases": ["high blood pressure", "htn", "essential hypertension", "hbp"]
+    },
+    {
+      "name": "Type 2 diabetes mellitus",
+      "aliases": [
+        "type 2 diabetes",
+        "t2dm",
+        "type II diabetes",
+        "niddm",
+        "diabetes mellitus type 2"
+      ]
+    },
+    {
+      "name": "Seasonal allergic rhinitis",
+      "aliases": [
+        "hay fever",
+        "seasonal allergies",
+        "allergic rhinitis",
+        "pollen allergy"
+      ]
+    },
+    {
+      "name": "Gastroesophageal reflux disease",
+      "aliases": ["gerd", "acid reflux", "gord", "reflux", "heartburn"]
+    },
+    {
+      "name": "Migraine",
+      "aliases": ["migraine headache", "migraines", "migraine disorder"]
+    }
+  ],
+  "drugs": [
+    {
+      "name": "Lisinopril",
+      "rxnorm_id": "29046",
+      "drug_class": "ACE inhibitor",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["dry cough", "dizziness", "high potassium"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Kidney function, potassium, and cough are commonly discussed with a clinician."
+    },
+    {
+      "name": "Amlodipine",
+      "rxnorm_id": "17767",
+      "drug_class": "Calcium channel blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["ankle swelling", "flushing", "dizziness"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Swelling and home blood-pressure notes are commonly discussed with a clinician."
+    },
+    {
+      "name": "Hydrochlorothiazide",
+      "rxnorm_id": "5487",
+      "drug_class": "Thiazide diuretic",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["more urination", "low potassium", "sun sensitivity"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Electrolytes, dehydration, and sun protection are commonly discussed with a clinician."
+    },
+    {
+      "name": "Losartan",
+      "rxnorm_id": "52175",
+      "drug_class": "Angiotensin II receptor blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["dizziness", "high potassium", "fatigue"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Kidney function and potassium are commonly discussed with a clinician."
+    },
+    {
+      "name": "Metoprolol",
+      "rxnorm_id": "6918",
+      "drug_class": "Beta blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["fatigue", "slow heart rate", "cold hands or feet"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Heart rate, energy, and asthma history are commonly discussed with a clinician."
+    },
+    {
+      "name": "Propranolol",
+      "rxnorm_id": "8787",
+      "drug_class": "Beta blocker",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["fatigue", "slow heart rate", "vivid dreams"],
+      "typical_use_note": "Daily oral tablet in this seed set; also appears with migraine-prevention notes.",
+      "monitoring_note": "Heart rate, asthma history, and energy changes are commonly discussed with a clinician."
+    },
+    {
+      "name": "Metformin",
+      "rxnorm_id": "6809",
+      "drug_class": "Biguanide",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["stomach upset", "diarrhea", "metallic taste"],
+      "typical_use_note": "Daily oral tablet in this seed set, often with meals.",
+      "monitoring_note": "Kidney function and stomach tolerance are commonly discussed with a clinician."
+    },
+    {
+      "name": "Empagliflozin",
+      "rxnorm_id": "1545653",
+      "drug_class": "SGLT2 inhibitor",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["genital yeast infections", "more urination", "dehydration"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Hydration, genital infections, and ketone symptoms are commonly discussed with a clinician."
+    },
+    {
+      "name": "Semaglutide",
+      "rxnorm_id": "1991302",
+      "drug_class": "GLP-1 receptor agonist",
+      "route": "injection or oral (product-dependent)",
+      "rx_otc": "Rx",
+      "common_side_effects": ["nausea", "vomiting", "decreased appetite"],
+      "typical_use_note": "Weekly injection is common in seed notes; an oral form also exists.",
+      "monitoring_note": "Stomach symptoms, nutrition, and injection technique are commonly discussed with a clinician."
+    },
+    {
+      "name": "Glipizide",
+      "rxnorm_id": "4821",
+      "drug_class": "Sulfonylurea",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["low blood sugar", "weight gain", "dizziness"],
+      "typical_use_note": "Daily oral tablet in this seed set, usually with a meal.",
+      "monitoring_note": "Low-blood-sugar symptoms and meal timing are commonly discussed with a clinician."
+    },
+    {
+      "name": "Sitagliptin",
+      "rxnorm_id": "593411",
+      "drug_class": "DPP-4 inhibitor",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["stuffy nose", "headache", "joint pain"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Unusual abdominal pain and joint symptoms are commonly discussed with a clinician."
+    },
+    {
+      "name": "Cetirizine",
+      "rxnorm_id": "20610",
+      "drug_class": "Second-generation antihistamine",
+      "route": "oral",
+      "rx_otc": "OTC",
+      "common_side_effects": ["drowsiness", "dry mouth", "fatigue"],
+      "typical_use_note": "Once-daily oral tablet in this seed set.",
+      "monitoring_note": "Daytime sleepiness and other allergy medicines are commonly discussed with a clinician."
+    },
+    {
+      "name": "Loratadine",
+      "rxnorm_id": "28889",
+      "drug_class": "Second-generation antihistamine",
+      "route": "oral",
+      "rx_otc": "OTC",
+      "common_side_effects": ["headache", "dry mouth", "occasional drowsiness"],
+      "typical_use_note": "Once-daily oral tablet in this seed set.",
+      "monitoring_note": "Whether it causes drowsiness for that person is commonly discussed with a clinician."
+    },
+    {
+      "name": "Fluticasone (nasal)",
+      "rxnorm_id": "41126",
+      "drug_class": "Intranasal corticosteroid",
+      "route": "nasal",
+      "rx_otc": "OTC or Rx (product-dependent)",
+      "common_side_effects": ["nosebleeds", "nasal irritation", "sore throat"],
+      "typical_use_note": "Daily nasal spray in this seed set.",
+      "monitoring_note": "Spray technique and nosebleeds are commonly discussed with a clinician."
+    },
+    {
+      "name": "Montelukast",
+      "rxnorm_id": "88249",
+      "drug_class": "Leukotriene receptor antagonist",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["headache", "stomach pain", "mood or behavior changes (labeled warning topic)"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Mood or behavior changes are a labeled warning topic to raise with a clinician."
+    },
+    {
+      "name": "Omeprazole",
+      "rxnorm_id": "7646",
+      "drug_class": "Proton pump inhibitor",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (strength-dependent)",
+      "common_side_effects": ["headache", "diarrhea", "abdominal pain"],
+      "typical_use_note": "Daily oral capsule in this seed set, often before a meal.",
+      "monitoring_note": "How long to stay on a PPI is commonly discussed with a clinician."
+    },
+    {
+      "name": "Pantoprazole",
+      "rxnorm_id": "40790",
+      "drug_class": "Proton pump inhibitor",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["headache", "diarrhea", "nausea"],
+      "typical_use_note": "Daily oral tablet in this seed set.",
+      "monitoring_note": "Duration of use and other acid medicines are commonly discussed with a clinician."
+    },
+    {
+      "name": "Famotidine",
+      "rxnorm_id": "4278",
+      "drug_class": "H2 blocker",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (strength-dependent)",
+      "common_side_effects": ["headache", "constipation", "diarrhea"],
+      "typical_use_note": "Oral tablet in this seed set; sometimes used as-needed.",
+      "monitoring_note": "Timing with meals and other medicines is commonly discussed with a clinician."
+    },
+    {
+      "name": "Esomeprazole",
+      "rxnorm_id": "283742",
+      "drug_class": "Proton pump inhibitor",
+      "route": "oral",
+      "rx_otc": "OTC or Rx (strength-dependent)",
+      "common_side_effects": ["headache", "diarrhea", "dry mouth"],
+      "typical_use_note": "Daily oral capsule in this seed set.",
+      "monitoring_note": "Duration of use is commonly discussed with a clinician."
+    },
+    {
+      "name": "Sumatriptan",
+      "rxnorm_id": "37418",
+      "drug_class": "Triptan",
+      "route": "oral (other forms exist)",
+      "rx_otc": "Rx",
+      "common_side_effects": ["chest tightness", "tingling", "drowsiness"],
+      "typical_use_note": "As-needed at migraine onset in this seed set.",
+      "monitoring_note": "Heart-disease history and how often it is used are commonly discussed with a clinician."
+    },
+    {
+      "name": "Rizatriptan",
+      "rxnorm_id": "88014",
+      "drug_class": "Triptan",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["drowsiness", "dizziness", "chest tightness"],
+      "typical_use_note": "As-needed at migraine onset in this seed set.",
+      "monitoring_note": "Heart-disease history and other migraine medicines are commonly discussed with a clinician."
+    },
+    {
+      "name": "Topiramate",
+      "rxnorm_id": "38400",
+      "drug_class": "Anticonvulsant (migraine-prevention note in seed)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["tingling", "word-finding difficulty", "appetite change"],
+      "typical_use_note": "Daily prevention tablet in this seed set — not an as-needed attack medicine.",
+      "monitoring_note": "Mood, hydration, kidney stones, and pregnancy plans are commonly discussed with a clinician."
+    },
+    {
+      "name": "Ubrogepant",
+      "rxnorm_id": "2261783",
+      "drug_class": "CGRP receptor antagonist (gepant)",
+      "route": "oral",
+      "rx_otc": "Rx",
+      "common_side_effects": ["nausea", "sleepiness", "dry mouth"],
+      "typical_use_note": "As-needed at migraine onset in this seed set.",
+      "monitoring_note": "How it fits with other migraine medicines is commonly discussed with a clinician."
+    }
+  ],
+  "indications": [
+    {
+      "drug": "Lisinopril",
+      "condition": "Hypertension",
+      "raw_text": "Hypertension",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Amlodipine",
+      "condition": "Hypertension",
+      "raw_text": "Hypertension; calcium-channel blocker associated with high blood pressure",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Hydrochlorothiazide",
+      "condition": "Hypertension",
+      "raw_text": "Hypertension; thiazide diuretic associated with high blood pressure",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Losartan",
+      "condition": "Hypertension",
+      "raw_text": "Hypertension; angiotensin II receptor blocker associated with high blood pressure",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Metoprolol",
+      "condition": "Hypertension",
+      "raw_text": "Hypertension; beta blocker associated with high blood pressure",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Propranolol",
+      "condition": "Hypertension",
+      "raw_text": "Hypertension",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Metformin",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Type 2 diabetes mellitus",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Empagliflozin",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Type 2 diabetes mellitus; SGLT2 inhibitor associated with T2DM",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Semaglutide",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Type 2 diabetes mellitus; GLP-1 receptor agonist associated with T2DM",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Glipizide",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Type 2 diabetes mellitus",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Sitagliptin",
+      "condition": "Type 2 diabetes mellitus",
+      "raw_text": "Type 2 diabetes mellitus; DPP-4 inhibitor associated with T2DM",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Cetirizine",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Seasonal allergic rhinitis; hay fever",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Loratadine",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Seasonal allergic rhinitis",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Fluticasone (nasal)",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Seasonal allergic rhinitis; intranasal corticosteroid associated with hay fever",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Montelukast",
+      "condition": "Seasonal allergic rhinitis",
+      "raw_text": "Seasonal allergic rhinitis",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Omeprazole",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Gastroesophageal reflux disease (GERD)",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Pantoprazole",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Gastroesophageal reflux disease",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Famotidine",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Gastroesophageal reflux disease; acid reflux / heartburn-associated indication in seed data",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Esomeprazole",
+      "condition": "Gastroesophageal reflux disease",
+      "raw_text": "Gastroesophageal reflux disease (GERD)",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Sumatriptan",
+      "condition": "Migraine",
+      "raw_text": "Migraine; acute treatment associated indication in seed data",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Rizatriptan",
+      "condition": "Migraine",
+      "raw_text": "Migraine",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Propranolol",
+      "condition": "Migraine",
+      "raw_text": "Migraine; prevention-associated indication in seed data",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Topiramate",
+      "condition": "Migraine",
+      "raw_text": "Migraine; prevention-associated indication in seed data",
+      "source": "seed:illustrative"
+    },
+    {
+      "drug": "Ubrogepant",
+      "condition": "Migraine",
+      "raw_text": "Migraine; acute treatment associated indication in seed data",
+      "source": "seed:illustrative"
+    }
+  ]
+}
