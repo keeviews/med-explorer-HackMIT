@@ -200,7 +200,7 @@ export default function App() {
       <header className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-semibold tracking-[0.16em] text-primary uppercase">
-            DiscussMeds
+            MedManager
           </p>
           <LanguageToggle />
         </div>
@@ -381,6 +381,12 @@ export default function App() {
             onMoveToHistory={(id) => setCabinet((current) => moveToHistory(current, id))}
             onRestore={(id) => setCabinet((current) => restoreCurrent(current, id))}
             onRemoveHistory={(id) => setCabinet((current) => removeHistory(current, id))}
+            onClearCurrent={() =>
+              setCabinet((current) => ({ ...current, current: [] }))
+            }
+            onClearHistory={() =>
+              setCabinet((current) => ({ ...current, history: [] }))
+            }
             onAddToCompare={(note) => togglePick({ id: note.id, name: note.name })}
             onImport={(notes, unmapped) =>
               setCabinet((current) => mergeImport(current, notes, unmapped))

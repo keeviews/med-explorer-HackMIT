@@ -1,1 +1,1 @@
-"""DiscussMeds API — condition → drug suggestions (decision support only)."""
+"""MedManager API — condition → drug suggestions (decision support only)."""

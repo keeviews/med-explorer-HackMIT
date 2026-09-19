@@ -81,7 +81,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="DiscussMeds",
+    title="MedManager",
     description=(
         "Patient/consumer decision-support API: search a condition and see "
         "associated medicines from open indication data. Compare selected "

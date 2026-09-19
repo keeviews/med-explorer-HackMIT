@@ -37,5 +37,5 @@ OVERLAP_NOTE = (
 
 TALK_WITH_CLINICIAN = (
     "Ask your clinician whether every medicine on this list is still needed. "
-    "DiscussMeds cannot tell you to stop, cut, or keep any medicine."
+    "MedManager cannot tell you to stop, cut, or keep any medicine."
 )

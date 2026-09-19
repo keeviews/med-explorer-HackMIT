@@ -22,6 +22,8 @@ type MyMedicinesProps = {
   onMoveToHistory: (id: number) => void
   onRestore: (id: number) => void
   onRemoveHistory: (id: number) => void
+  onClearCurrent: () => void
+  onClearHistory: () => void
   onAddToCompare: (note: MedicineNote) => void
   onImport: (notes: MedicineNote[], unmapped: UnmappedMedication[]) => void
   onRemoveUnmapped: (name: string) => void
@@ -32,6 +34,8 @@ export function MyMedicines({
   onMoveToHistory,
   onRestore,
   onRemoveHistory,
+  onClearCurrent,
+  onClearHistory,
   onAddToCompare,
   onImport,
   onRemoveUnmapped,
@@ -118,6 +122,12 @@ export function MyMedicines({
     return source ?? null
   }
 
+  function confirmClear(listName: "currently taking" | "past medicines", onConfirm: () => void) {
+    if (window.confirm(`Clear all ${listName}? This cannot be undone.`)) {
+      onConfirm()
+    }
+  }
+
   return (
     <section id="my-medicines" className="scroll-mt-6 space-y-4">
       <div>
@@ -125,7 +135,7 @@ export function MyMedicines({
         <p className="mt-1 max-w-xl text-sm text-muted-foreground">{copy.myIntro}</p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+      <div className="space-y-3 border-b border-border pb-5">
         <div className="flex items-start gap-3">
           <Hospital className="mt-0.5 h-5 w-5 text-primary" aria-hidden="true" />
           <div>
@@ -157,13 +167,24 @@ export function MyMedicines({
         {importNotice ? <p className="text-sm">{importNotice}</p> : null}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-4">
+      <div className="grid border-y border-border md:grid-cols-2">
+        <div className="py-4 md:pr-6">
           <div className="flex items-center justify-between gap-2">
             <h3 className="font-heading text-lg">{copy.currentlyTaking}</h3>
-            <Badge variant="outline">
-              {cabinet.current.length}/{CABINET_LIMIT}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">
+                {cabinet.current.length}/{CABINET_LIMIT}
+              </Badge>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={cabinet.current.length === 0}
+                onClick={() => confirmClear("currently taking", onClearCurrent)}
+              >
+                Clear current list
+              </Button>
+            </div>
           </div>
           {cabinet.current.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{copy.takingEmpty}</p>
@@ -172,7 +193,7 @@ export function MyMedicines({
               {cabinet.current.map((item) => (
                 <li
                   key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary/60 px-3 py-2 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 py-3 text-sm last:border-b-0"
                 >
                   <span>
                     <span className="font-medium">{item.name}</span>
@@ -195,7 +216,7 @@ export function MyMedicines({
             </ul>
           )}
           {cabinet.unmapped.length > 0 ? (
-            <div className="mt-4 rounded-lg border border-dashed border-border p-3">
+            <div className="mt-4 border-t border-dashed border-border pt-3">
               <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                 {copy.unmappedTitle}
               </p>
@@ -224,8 +245,19 @@ export function MyMedicines({
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-4">
-          <h3 className="font-heading text-lg">{copy.pastNotes}</h3>
+        <div className="border-t border-border py-4 md:border-t-0 md:border-l md:pl-6">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-heading text-lg">{copy.pastNotes}</h3>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={cabinet.history.length === 0}
+              onClick={() => confirmClear("past medicines", onClearHistory)}
+            >
+              Clear past list
+            </Button>
+          </div>
           {cabinet.history.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{copy.pastEmpty}</p>
           ) : (
@@ -233,7 +265,7 @@ export function MyMedicines({
               {cabinet.history.map((item) => (
                 <li
                   key={`${item.id}-${item.stoppedAt ?? ""}`}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/60 px-3 py-2 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 py-3 text-sm last:border-b-0"
                 >
                   <span>{item.name}</span>
                   <span className="flex flex-wrap gap-1">
@@ -251,21 +283,6 @@ export function MyMedicines({
         </div>
       </div>
 
-      <MedicineScanner
-        disabled={cabinet.current.length >= CABINET_LIMIT}
-        onAdd={(candidates) =>
-          onImport(
-            candidates.map((candidate) => ({
-              id: candidate.id,
-              name: candidate.name,
-              addedAt: new Date().toISOString(),
-              source: "label_scan",
-            })),
-            [],
-          )
-        }
-      />
-
       {status === "short" ? (
         <p className="rounded-lg border border-dashed border-border bg-card/70 p-3 text-sm text-muted-foreground">
           {copy.reviewShort}
@@ -277,7 +294,7 @@ export function MyMedicines({
       ) : null}
 
       {status === "ok" && review ? (
-        <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+        <div className="space-y-3 border-y border-border py-4">
           <h3 className="font-heading text-lg">{copy.reviewTitle}</h3>
           {!simple && review.overlap_note ? (
             <p className="text-sm text-muted-foreground">{review.overlap_note}</p>
@@ -293,6 +310,21 @@ export function MyMedicines({
           )}
         </div>
       ) : null}
+
+      <MedicineScanner
+        disabled={cabinet.current.length >= CABINET_LIMIT}
+        onAdd={(candidates) =>
+          onImport(
+            candidates.map((candidate) => ({
+              id: candidate.id,
+              name: candidate.name,
+              addedAt: new Date().toISOString(),
+              source: "label_scan",
+            })),
+            [],
+          )
+        }
+      />
     </section>
   )
 }
