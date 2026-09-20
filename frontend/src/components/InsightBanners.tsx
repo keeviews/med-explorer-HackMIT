@@ -2,6 +2,7 @@ import { simpleAlertDetail, simpleAlertTitle } from "@/lib/copy"
 import { useLanguage } from "@/lib/language"
 import { cn } from "@/lib/utils"
 import type { CombinationAlert, Similarity } from "@/lib/types"
+import { Sparkles } from "lucide-react"
 
 type InsightBannersProps = {
   alerts: CombinationAlert[]
@@ -40,6 +41,24 @@ export function InsightBanners({
           <p className="mt-1 text-sm leading-relaxed">
             {simple && alert.code !== "label_interaction" ? simpleAlertDetail(alert) : alert.detail}
           </p>
+          <section className="mt-3 rounded-md border border-current/20 bg-white/50 p-3" aria-label="Demo AI discussion prompts">
+            <div className="flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+              <Sparkles className="size-4" aria-hidden="true" />
+              Demo AI discussion prompts
+            </div>
+            <p className="mt-1 text-xs leading-relaxed opacity-90">
+              This prototype does not recommend replacements. A clinician or pharmacist must decide whether an
+              alternative is appropriate.
+            </p>
+            <ul className="mt-2 space-y-1.5 text-sm">
+              {alert.drug_names.map((drugName) => (
+                <li key={drugName} className="rounded border border-current/15 bg-white/60 px-2.5 py-2">
+                  <span className="font-semibold">{drugName}:</span>{" "}
+                  Ask whether a lower-risk option for the same condition could be appropriate for you.
+                </li>
+              ))}
+            </ul>
+          </section>
           {alert.evidence && alert.evidence.length > 0 ? (
             simple ? (
               <a

@@ -115,14 +115,6 @@ export function MyMedicines({
     }
   }
 
-  function sourceLabel(source?: string): string | null {
-    if (source === "fhir_demo") return copy.sourceDemo
-    if (source === "mychart") return copy.sourceMyChart
-    if (source === "label_scan") return "label scan"
-    if (source === "manual") return null
-    return source ?? null
-  }
-
   function confirmClear(listName: "currently taking" | "past medicines", onConfirm: () => void) {
     if (window.confirm(`Clear all ${listName}? This cannot be undone.`)) {
       onConfirm()
@@ -194,17 +186,10 @@ export function MyMedicines({
               {cabinet.current.map((item) => (
                 <li
                   key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 py-3 text-sm last:border-b-0"
-                >
-                  <span>
-                    <span className="font-medium">{item.name}</span>
-                    {sourceLabel(item.source) ? (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        {sourceLabel(item.source)}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="flex flex-wrap gap-1">
+              className="grid grid-cols-1 gap-x-3 gap-y-2 border-b border-border/70 py-3 text-sm last:border-b-0 sm:grid-cols-[minmax(8rem,1fr)_auto] sm:items-center"
+            >
+              <span className="min-w-0 break-words font-medium">{item.name}</span>
+              <span className="flex flex-wrap items-center gap-1 sm:max-w-[20rem] sm:justify-end">
                     <Button type="button" size="sm" variant="ghost" onClick={() => onAddToCompare(item)}>
                       {copy.addCompare}
                     </Button>
