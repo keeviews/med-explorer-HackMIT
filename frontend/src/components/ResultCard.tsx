@@ -1,5 +1,6 @@
 import { Columns2, Minus, Plus } from "lucide-react"
 
+import { FindNearbyButton } from "@/components/FindNearby"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -82,6 +83,7 @@ export function ResultCard({
           >
             {taking ? copy.onMyList : copy.takingThis}
           </Button>
+          <FindNearbyButton drugId={suggestion.id} drugName={suggestion.drug_name} variant="ghost" />
         </div>
       </CardContent>
     </Card>

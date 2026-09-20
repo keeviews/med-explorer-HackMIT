@@ -137,6 +137,15 @@ How it works (no AI/LLM involved):
 
 **Limits:** no flag does **not** mean a combination is safe. Labels do not list every interaction, only the 81 medicines in this app are checked, and class-level flags (for example "mentions NSAIDs") are broader than a named drug. Labels are cut to the sentence that matters, with reference numbers like "( 7.1 )" removed. Keep the disclaimer in front of people.
 
+## Find nearby (pharmacies)
+
+Every medicine in the search results and in "currently taking" has a **Find nearby** button. It opens a popup with an [OpenStreetMap](https://www.openstreetmap.org) map of pharmacies within **1, 10 or 25 miles**, a nearest-first list (address, hours in plain English, a tap-to-call phone number, directions), and a plain-language note on whether the medicine is over the counter, prescription, or both.
+
+- **Location:** "Use my location" (the browser asks permission first) or type a ZIP code or address. The server uses your location only to answer the request. It is not stored or logged, and only anonymous map data is cached (in memory, for 10 minutes).
+- **Data:** pharmacy locations come from the [Overpass API](https://overpass-api.de) and address search from [Nominatim](https://nominatim.org), both run by OpenStreetMap contributors. Endpoints: `GET /pharmacies/nearby?lat=&lon=&miles=` and `GET /geocode?q=`. The requests are made by the backend so it can send the identifying User-Agent these services require (`backend/app/pharmacies.py`).
+- **Limits:** **nothing here knows what a pharmacy has in stock**; no open dataset does. The popup says so and tells people to call ahead. Map data can be incomplete or out of date (some pharmacies have no phone number or hours), and a 25-mile search can take up to about half a minute on the public servers. If the map service is busy, the popup says so and suggests a smaller distance.
+- **Frontend:** [Leaflet](https://leafletjs.com) (`frontend/src/components/NearbyMap.tsx`, `FindNearby.tsx`).
+
 ## Ports and CORS
 
 | Service  | URL |

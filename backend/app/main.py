@@ -43,6 +43,14 @@ from app.fhir_import import (
 )
 from app.insights import build_insights
 from app.medicine_match import resolve_text
+from app.pharmacies import (
+    MAX_MILES,
+    GeocodeResponse,
+    NearbyPharmaciesResponse,
+    PharmacyLookupError,
+    find_pharmacies,
+    geocode,
+)
 from app.models import Condition, Drug
 from app.schemas import (
     CombinationAlert,
@@ -306,3 +314,27 @@ def mychart_callback() -> dict[str, str]:
             "GET /integrations/mychart/demo."
         ),
     )
+
+
+@app.get("/pharmacies/nearby", response_model=NearbyPharmaciesResponse)
+def nearby_pharmacies(
+    lat: float = Query(..., ge=-90, le=90, description="Latitude of the person's location"),
+    lon: float = Query(..., ge=-180, le=180, description="Longitude of the person's location"),
+    miles: float = Query(10, gt=0, le=MAX_MILES, description="Search radius in miles (up to 25)"),
+) -> NearbyPharmaciesResponse:
+    """Pharmacies from OpenStreetMap near a point. It cannot tell what any pharmacy has in stock."""
+    try:
+        return find_pharmacies(lat, lon, miles)
+    except PharmacyLookupError as exc:
+        raise HTTPException(status_code=502, detail=f"{exc} Please try again in a minute.") from exc
+
+
+@app.get("/geocode", response_model=GeocodeResponse)
+def geocode_place(
+    q: str = Query(..., min_length=3, max_length=120, description="A ZIP code, city or street address"),
+) -> GeocodeResponse:
+    """Turn a ZIP code or address into map points, for people who do not share their location."""
+    try:
+        return geocode(q)
+    except PharmacyLookupError as exc:
+        raise HTTPException(status_code=502, detail=f"{exc} Please try again in a minute.") from exc

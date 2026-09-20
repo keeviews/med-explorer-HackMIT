@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { ClipboardList, Hospital, LoaderCircle } from "lucide-react"
 
+import { FindNearbyButton } from "@/components/FindNearby"
 import { InsightBanners } from "@/components/InsightBanners"
 import { MedicineScanner } from "@/components/MedicineScanner"
 import { Badge } from "@/components/ui/badge"
@@ -207,6 +208,7 @@ export function MyMedicines({
                     <Button type="button" size="sm" variant="ghost" onClick={() => onAddToCompare(item)}>
                       {copy.addCompare}
                     </Button>
+                    <FindNearbyButton drugId={item.id} drugName={item.name} variant="ghost" size="sm" />
                     <Button type="button" size="sm" variant="outline" onClick={() => onMoveToHistory(item.id)}>
                       {copy.movePast}
                     </Button>
