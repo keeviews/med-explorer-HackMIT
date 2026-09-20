@@ -1,19 +1,8 @@
 # DiscussMeds
 
-A local-first patient/consumer MVP: search a **medical condition**, see **associated medicines** from indication data, and take that list to a clinician.
+MedManager is a project that looks to take the vast array of people's medication and attempt to elimanate any excess usage. MedManager wants to make sure people aren't taking more medications than they need to. 
 
 This is **decision support only**. It is not a prescribing tool, not a diagnosis, and not advice to start or stop a medicine.
-
-## What this first pass includes
-
-- FastAPI backend with `GET /health`, `GET /suggest`, `GET /compare?ids=`, `GET /review?ids=` (longer personal list), and `GET /drugs/{id}`
-- SQLite schema: `conditions`, `drugs` (name, optional RxNorm ID, class/route/Rx-OTC, seed side effects and notes), `indications` (raw text + source)
-- Real **FDA drug label data** ([openFDA](https://open.fda.gov/apis/drug/label/)) for 81 common medicines and 25 conditions, saved in `data/seed.json` so search, compare, and overlap flags work offline
-- React + TypeScript + Vite UI with search, a capped compare list (up to 4), sage/red cell highlighting, a private currently-taking list, MyChart/SMART on FHIR wiring plus a demo FHIR import, empty/error states, and a prominent disclaimer
-- A **Simple / More detail** language toggle (defaults to Simple, saved in this browser) so the same screens stay readable for anyone, with extra technical notes only when you want them
-- A build script (`scripts/build_seed_from_openfda.py`) that regenerates the data from openFDA and checks the wording against the FDA labels
-
-Not included: accounts, insurance, pharmacy pricing, allergy filtering, or a complete interaction/DDI database. Overlap flags are discussion starters only.
 
 ## Architecture
 
