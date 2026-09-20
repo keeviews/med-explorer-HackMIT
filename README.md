@@ -1,6 +1,6 @@
 # DiscussMeds
 
-MedManager is a project that looks to take the vast array of people's medication and attempt to elimanate any excess usage. MedManager wants to make sure people aren't taking more medications than they need to. 
+MedManager is a project that looks to take the vast array of people's medication and attempt to eliminate any excess usage. MedManager wants to make sure people aren't taking more medications than they need to. In short MedManager manages your meds so you don't have to. 
 
 This is **decision support only**. It is not a prescribing tool, not a diagnosis, and not advice to start or stop a medicine.
 
