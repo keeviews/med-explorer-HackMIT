@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react"
+import { useEffect, useRef, useState, type FormEvent } from "react"
+import { createPortal } from "react-dom"
 import { LoaderCircle, LocateFixed, MapPin, Navigation, Phone, Search, X } from "lucide-react"
 
 import { NearbyMap } from "@/components/NearbyMap"
@@ -48,7 +49,11 @@ export function FindNearbyButton({ drugId, drugName, variant = "secondary", size
         <MapPin className="h-4 w-4" />
         Find nearby
       </Button>
-      {open ? <NearbyDialog drugId={drugId} drugName={drugName} onClose={closeDialog} /> : null}
+      {/* Shown at the top level of the page, not inside the card or its live-region, so screen readers and
+          stacking behave. */}
+      {open
+        ? createPortal(<NearbyDialog drugId={drugId} drugName={drugName} onClose={closeDialog} />, document.body)
+        : null}
     </>
   )
 }
@@ -70,6 +75,7 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
   const [selected, setSelected] = useState<string | null>(null)
   const panel = useRef<HTMLDivElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
+  const busy = status === "locating" || status === "loading"
 
   // Say whether the medicine is over the counter, prescription, or both.
   useEffect(() => {
@@ -86,6 +92,12 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
   useEffect(() => {
     if (!spot) return
     const controller = new AbortController()
+    // The free public map servers are sometimes slow. Never leave people waiting on a spinner.
+    let timedOut = false
+    const timer = window.setTimeout(() => {
+      timedOut = true
+      controller.abort()
+    }, 90_000)
     setStatus("loading")
     setMessage(null)
     setSelected(null)
@@ -95,46 +107,66 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
         setStatus("ok")
       })
       .catch((cause) => {
-        if (cause instanceof DOMException && cause.name === "AbortError") return
+        if (cause instanceof DOMException && cause.name === "AbortError") {
+          if (timedOut) {
+            setStatus("error")
+            setMessage("This is taking longer than usual. Try a smaller distance, or try again in a minute.")
+          }
+          return
+        }
         setStatus("error")
         setMessage(cause instanceof NearbyError ? cause.message : "Something went wrong while looking up pharmacies.")
       })
-    return () => controller.abort()
+      .finally(() => window.clearTimeout(timer))
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+    }
   }, [spot, miles])
 
-  // Popup behavior: focus starts inside, and the page behind does not scroll.
+  // Popup behavior: focus starts inside, the page behind does not scroll, Escape closes, and Tab stays inside.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
   useEffect(() => {
     closeButton.current?.focus()
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
+    // Listen on the whole page, not just the popup: when focus is lost (for example a button is removed
+    // while a lookup runs) the keys must still work.
+    function onDocumentKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault()
+        onCloseRef.current()
+        return
+      }
+      if (event.key !== "Tab" || !panel.current) return
+      const focusable = Array.from(
+        panel.current.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), input, [tabindex]:not([tabindex='-1'])"),
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const active = document.activeElement
+      if (!(active instanceof Node) || !panel.current.contains(active)) {
+        event.preventDefault()
+        ;(event.shiftKey ? last : first).focus()
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener("keydown", onDocumentKeyDown)
     return () => {
+      document.removeEventListener("keydown", onDocumentKeyDown)
       document.body.style.overflow = previousOverflow
     }
   }, [])
 
-  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Escape") {
-      event.stopPropagation()
-      onClose()
-      return
-    }
-    if (event.key !== "Tab" || !panel.current) return
-    const focusable = Array.from(
-      panel.current.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), input, [tabindex]:not([tabindex='-1'])"),
-    )
-    if (focusable.length === 0) return
-    const first = focusable[0]
-    const last = focusable[focusable.length - 1]
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault()
-      last.focus()
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault()
-      first.focus()
-    }
-  }
-
   function locateMe() {
+    if (busy) return
     if (!navigator.geolocation) {
       setStatus("error")
       setMessage("This browser cannot share your location. Type a ZIP code or address instead.")
@@ -159,6 +191,7 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
 
   async function searchPlace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (busy) return
     const text = query.trim()
     if (text.length < 3) {
       setStatus("error")
@@ -182,7 +215,6 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
   }
 
   const note = availabilityNote(rxOtc)
-  const busy = status === "locating" || status === "loading"
   const results = data?.results ?? []
 
   return (
@@ -197,7 +229,6 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
         role="dialog"
         aria-modal="true"
         aria-labelledby="nearby-title"
-        onKeyDown={onKeyDown}
         className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-border bg-background shadow-2xl"
       >
         <div className="flex items-start justify-between gap-3 border-b border-border p-4 sm:p-5">
@@ -221,7 +252,7 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
 
           <div className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-              <Button type="button" onClick={locateMe} disabled={busy}>
+              <Button type="button" onClick={locateMe} aria-disabled={busy} className={cn(busy && "opacity-60")}>
                 <LocateFixed className="h-4 w-4" />
                 Use my location
               </Button>
@@ -237,7 +268,7 @@ function NearbyDialog({ drugId, drugName, onClose }: { drugId: number; drugName:
                   autoComplete="postal-code"
                   className="h-10 min-w-0 flex-1 rounded-md border border-input bg-card px-3 text-sm"
                 />
-                <Button type="submit" variant="secondary" disabled={busy}>
+                <Button type="submit" variant="secondary" aria-disabled={busy} className={cn(busy && "opacity-60")}>
                   <Search className="h-4 w-4" />
                   Search
                 </Button>
